@@ -5,6 +5,12 @@ package dj.yatm.model;
  */
 public interface IListItem {
     /**
+     * Retrieves the item's id.
+     * @return the id of this item.
+     */
+    int getId();
+
+    /**
      * Gets this item's priority.
      * @return The priority of this item.
      */
@@ -51,4 +57,9 @@ public interface IListItem {
      * @param description The description of the list item.
      */
     void setDescription(String description);
+
+    /**
+     * Causes the item to be deleted. Notifies observers of the deletion.
+     */
+    void delete();
 }
