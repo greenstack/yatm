@@ -16,6 +16,7 @@ public abstract class AbstractListItem implements IListItem {
     private String description;
     @NonNull
     private Date creation;
+    private Date dueDate;
     private int priority;
 
     /**
@@ -99,5 +100,20 @@ public abstract class AbstractListItem implements IListItem {
     final void setId(int id) {
         this.id = id;
         notify(ListItemEvent.Update);
+    }
+
+    @Override
+    public final void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    @Override
+    public final Date getDueDate() {
+        return this.dueDate;
+    }
+
+    @Override
+    public final boolean isLate() {
+        return dueDate.before(Date.from(now()));
     }
 }
