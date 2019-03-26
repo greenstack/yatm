@@ -9,4 +9,20 @@
     <string name="list_setup_date_edit">Date</string>
     <string name="list_setup_priority">Priority:</string>
     <string name="list_setup_priority_edit">Priority</string>
+
+    <string-array name = "type">
+        <item>School</item>
+        <item>Church</item>
+        <item>Family</item>
+        <item>Chores</item>
+        <item>Work</item>
+        <item>Fun</item>
+    </string-array>
+
+
+    <string-array name="priority">
+        <item>High</item>
+        <item>Medium</item>
+        <item>Low</item>
+    </string-array>
 </resources>

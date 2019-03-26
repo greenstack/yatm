@@ -26,14 +26,15 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="8dp"
-            android:text="TextView"
+            android:textColor="#ffffff"
+            android:text="New Task"
             android:textSize="24sp" />
 
         <Button
             android:id="@+id/save_setup_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimaryDark"
             android:padding="5dp"
             android:text="Save"
             android:textColor="#ffffff" />
@@ -84,20 +85,22 @@
             android:textSize="20sp" />
 
         <Spinner
-            android:id="@+id/spinner"
+            android:id="@+id/type_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:entries="@array/type"
             android:spinnerMode="dropdown" />
 
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/date_setup_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/type_setup_layout_layout_id"
+        android:layout_below="@+id/priority_setup_layout_layout_id"
         android:layout_marginTop="0dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="8dp">
 
         <TextView
@@ -108,20 +111,19 @@
             android:text="@string/list_setup_date"
             android:textSize="20sp" />
 
-        <EditText
-            android:id="@+id/date_edit_text"
-            android:layout_width="wrap_content"
+        <CalendarView
+            android:id="@+id/calendarView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:text="@string/list_setup_date_edit" />
+            android:layout_weight="1" />
+
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/priority_setup_layout_layout_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/date_setup_linear_layout"
+        android:layout_below="@+id/type_setup_layout_layout_id"
         android:layout_marginTop="0dp"
         android:orientation="horizontal"
         android:padding="8dp">
@@ -135,10 +137,11 @@
             android:textSize="20sp" />
 
         <Spinner
-            android:id="@+id/priority_setup_text_edit"
+            android:id="@+id/priority_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:entries="@array/priority"
             android:spinnerMode="dropdown" />
 
     </LinearLayout>
