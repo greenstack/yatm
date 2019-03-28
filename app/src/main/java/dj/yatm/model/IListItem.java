@@ -66,16 +66,16 @@ public interface IListItem {
     boolean isLate();
 
     /**
-     * Retrieves the item's description.
-     * @return The description of this item.
+     * Retrieves the item's category.
+     * @return The category of this item.
      */
-    String getDescription();
+    String getCategory();
 
     /**
-     * Sets this item's description.
-     * @param description The description of the list item.
+     * Sets this item's category.
+     * @param category the category of the list item.
      */
-    void setDescription(String description);
+    void setCategory(String category);
 
     /**
      * Causes the item to be deleted. Notifies observers of the deletion.

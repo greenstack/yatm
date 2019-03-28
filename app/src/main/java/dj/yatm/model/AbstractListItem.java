@@ -13,7 +13,7 @@ import static java.time.Instant.now;
 public abstract class AbstractListItem implements IListItem {
     int id;
     private String title;
-    private String description;
+    private String category;
     @NonNull
     private Date creation;
     private Date dueDate;
@@ -50,14 +50,14 @@ public abstract class AbstractListItem implements IListItem {
     }
 
     @Override
-    final public void setDescription(String description) {
-        this.description = description;
+    final public void setCategory(String category) {
+        this.category = category;
         notify(ListItemEvent.Update);
     }
 
     @Override
-    final public String getDescription() {
-        return description;
+    final public String getCategory() {
+        return category;
     }
 
     @Override

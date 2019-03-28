@@ -18,7 +18,7 @@ public class ListItemTest {
         TodoItem ti1 = new TodoItem(1, null);
         ti1.setTitle("TI1");
         ti1.setPriority(0);
-        ti1.setDescription("Test Item 1");
+
         list.addItem(ti1);
     }
 
@@ -37,6 +37,9 @@ public class ListItemTest {
         assertEquals(false, list.isComplete());
         subItem2.toggleComplete();
         assertEquals(true, list.isComplete());
+
+        AbstractListItem ali = new ListItem(0, null);
+        AbstractListItem ali2 = new TodoItem(0, null);
     }
 
     @Test
