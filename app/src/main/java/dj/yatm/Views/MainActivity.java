@@ -9,15 +9,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+//import androidx.room.Room;
 import dj.yatm.R;
 import dj.yatm.model.AbstractListItem;
+import dj.yatm.model.IListItemObserver;
+import dj.yatm.model.ListItem;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,21 +29,41 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton addListButton;
     private TextView title;
 
+    private static IListItemObserver database;
 
-    public void initVariables(ArrayList<String> strings){
+    public static IListItemObserver getDatabase() {
+        return database;
+    }
+
+    public void initVariables(ArrayList<ListItem> items){
         mainListManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mainList.setLayoutManager(mainListManager);
-        if (strings == null) {
-            strings = new ArrayList<>();
-            strings.add("Tasks");
-            strings.add("Walk Dog");
-            strings.add("Ask for Raise");
-            strings.add("Make Model");
-            strings.add("Chicken Salad List");
+        if (items == null) {
+            items = new ArrayList<>();
+
+            ListItem newItem = new ListItem(database);
+            newItem.setTitle("Todo List");
+            items.add(newItem);
+
+            newItem = new ListItem(database);
+            newItem.setTitle("Walk Dog");
+            items.add(newItem);
+
+            newItem = new ListItem(database);
+            newItem.setTitle("Ask for Raise");
+            items.add(newItem);
+
+            newItem = new ListItem(database);
+            newItem.setTitle("Make Model");
+            items.add(newItem);
+
+            newItem = new ListItem(database);
+            newItem.setTitle("Chicken Salad List");
+            items.add(newItem);
         }
-        title.setText(strings.get(0));
-        strings.remove(0);
-        mainListAdapter = new MainListAdapter(this, strings);
+        title.setText(items.get(0).getTitle());
+        items.remove(0);
+        mainListAdapter = new MainListAdapter(this, items);
         mainList.setAdapter(mainListAdapter);
     }
 
@@ -54,15 +76,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        database = null;//Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "yatm").build();
         setContentView(R.layout.activity_main);
         Bundle bundle = this.getIntent().getExtras();
-        ArrayList<String> strings = null;
+        ArrayList<ListItem> items = null;
         if (bundle != null) {
-            strings = (ArrayList<String>) bundle.getSerializable("strings");
+            items = (ArrayList<ListItem>) bundle.getSerializable("tasks");
         }
         List<AbstractListItem> list = null;
         assignIDs();
-        initVariables(strings);
+        initVariables(items);
 
         addListButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,9 +99,9 @@ public class MainActivity extends AppCompatActivity {
 
     class MainListAdapter extends RecyclerView.Adapter<MainListHolder> {
         private LayoutInflater inflater;
-        private List<String> items;
+        private List<ListItem> items;
 
-        public MainListAdapter(Context context, List<String> items){
+        public MainListAdapter(Context context, List<ListItem> items){
             inflater = LayoutInflater.from(context);
             this.items = items;
         }
@@ -91,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(MainListHolder holder, int position){
-            String item = items.get(position);
+            ListItem item = items.get(position);
             holder.bind(item);
         }
 
@@ -104,8 +127,7 @@ public class MainActivity extends AppCompatActivity {
     class MainListHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView title;
         ImageButton check;
-        String item;
-        boolean isChecked;
+        ListItem item;
 
 
         public MainListHolder(final View view){
@@ -113,40 +135,49 @@ public class MainActivity extends AppCompatActivity {
             view.setOnClickListener(this);
             title = view.findViewById(R.id.title);
             check = view.findViewById(R.id.check_button);
-            isChecked = false;
             check.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (isChecked) {
+                    if (item.isComplete()) {
                         check.setImageResource(R.drawable.check);
-                        isChecked = false;
+                        item.setCompletenessForAll(true, true);
                     } else {
                         check.setImageResource(R.drawable.check_checked);
-                        isChecked = true;
+                        item.setCompletenessForAll(false, true);
                     }
                 }
             });
         }
 
-        void bind(String item){
-            title.setText(item); //item.getTitle());
+        void bind(ListItem item){
+            title.setText(item.getTitle()); //item.getTitle());
             this.item = item;
             return;
         }
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
-            ArrayList<String> newData = new ArrayList<>();
-            if (item.equals("Chicken Salad List")){
-                newData.add(item);
-                newData.add("chicken");
-                newData.add("lettuce");
-                newData.add("Dressing");
+            ListItem newData = new ListItem(database);
+            if (item.getTitle().equals("Chicken Salad List")){
+                newData.addItem(item);
+                ListItem newItem = new ListItem(database);
+                newData.setTitle("chicken");
+
+                newItem = new ListItem(database);
+                newData.addItem(newItem);
+
+                newItem = new ListItem(database);
+                newItem.setTitle("lettuce");
+                newData.addItem(newItem);
+
+                newItem = new ListItem(database);
+                newItem.setTitle("Dressing");
+                newData.addItem(newItem);
             } else {
-                newData.add(item);
+                newData.addItem(item);
             }
             Bundle bundle = new Bundle();
-            bundle.putSerializable("strings", newData);
+            bundle.putSerializable("tasks", newData);
             intent.putExtras(bundle);
             startActivity(intent);
 

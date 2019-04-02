@@ -15,5 +15,9 @@ public enum ListItemEvent {
     /**
      * Used when the item is to be deleted.
      */
-    Delete
+    Delete,
+    /**
+     * Do not bother the observer with your trifles!
+     */
+    None,
 }

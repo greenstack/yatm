@@ -1,39 +1,62 @@
 package dj.yatm.model;
 
-import android.support.annotation.NonNull;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
+
+//import androidx.room.ColumnInfo;
+//import androidx.room.Entity;
+//import androidx.room.Ignore;
+//import androidx.room.PrimaryKey;
 
 import static java.time.Instant.now;
 
 /**
  * An abstract implementation of the IListItem.
  */
-public abstract class AbstractListItem implements IListItem {
-    int id;
+public abstract class AbstractListItem implements IListItem, Serializable {
+    //@PrimaryKey
+    long id;
+    //@ColumnInfo(name = "title")
     private String title;
+    //@ColumnInfo(name = "category")
     private String category;
-    @NonNull
+    //@ColumnInfo(name = "creation_date")
     private Date creation;
+    //@ColumnInfo(name = "due_date")
     private Date dueDate;
+    //@ColumnInfo(name = "priority")
     private int priority;
+    //@ColumnInfo(name = "parent_id")
+    protected Long parentId;
 
     /**
      * A list of observers looking at this item.
      */
+    //@Ignore
     HashSet<IListItemObserver> observers;
 
-    protected int parentId;
+    AbstractListItem() {
+        creation = Date.from(now());
+        observers = new HashSet<>();
+    }
 
-    AbstractListItem(int id, Iterable<IListItemObserver> observers) {
+    AbstractListItem(IListItemObserver observer) {
+        creation = Date.from(now());
+        observers = new HashSet<>();
+        if (observer != null)
+            observers.add(observer);
+        notify(ListItemEvent.Create);
+    }
+
+    AbstractListItem(Iterable<IListItemObserver> observers) {
         creation = Date.from(now());
         this.observers = new HashSet<>();
         for (IListItemObserver observer :
                 observers) {
             this.observers.add(observer);
         }
-        this.id = id;
         notify(ListItemEvent.Create);
     }
 
@@ -83,23 +106,15 @@ public abstract class AbstractListItem implements IListItem {
     }
 
     @Override
-    @NonNull
     final public Date getCreation() {
         return creation;
     }
 
-    @Override
-    final public int getId() {
-        return id;
-    }
+    final void setCreation(Date creation) {this.creation = creation;}
 
-    /**
-     * Sets this item's id.
-     * @param id
-     */
-    final void setId(int id) {
-        this.id = id;
-        notify(ListItemEvent.Update);
+    @Override
+    final public long getId() {
+        return id;
     }
 
     @Override

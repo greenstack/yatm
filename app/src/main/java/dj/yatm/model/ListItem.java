@@ -1,19 +1,32 @@
 package dj.yatm.model;
 
 import java.util.ArrayList;
+//import androidx.room.Entity;
+//import androidx.room.Ignore;
 
 /**
  * Created by Joseph on 3/21/2019.
  */
+//@Entity(tableName = "tasks")
 public class ListItem extends AbstractListItem {
-
+    //@Ignore
     ArrayList<AbstractListItem> subTasks;
+
+    public ListItem() {
+        super();
+        subTasks = new ArrayList<>();
+    }
+
+    public ListItem(IListItemObserver observer) {
+        super(observer);
+        subTasks = new ArrayList<>();
+    }
 
     /**
      * Creates a new instance of ListItem.
      */
-    public ListItem(int id, Iterable<IListItemObserver> observers) {
-        super(id, observers);
+    public ListItem(Iterable<IListItemObserver> observers) {
+        super(observers);
         subTasks = new ArrayList<>();
     }
 
@@ -35,16 +48,22 @@ public class ListItem extends AbstractListItem {
      * @param item the item to be added.
      */
     public void addItem(AbstractListItem item) {
+        addItem(item, true);
+    }
+
+    void addItem(AbstractListItem item, boolean notify) {
         item.parentId = id;
+        item.notify(notify ? ListItemEvent.Update : ListItemEvent.None);
         subTasks.add(item);
     }
 
     /**
-     * Removes the item from the list.
+     * Removes the item from the list and the database.
      * @param item the item to be removed.
      * @return true if the item was successfully removed.
      */
     public boolean removeItem(AbstractListItem item) {
+        item.delete();
         return subTasks.remove(item);
     }
 
@@ -57,17 +76,8 @@ public class ListItem extends AbstractListItem {
         for (AbstractListItem ali :
                 subTasks) {
             if (ali instanceof ListItem && recurse) ((ListItem) ali).setCompletenessForAll(completeness,true);
-            else ((TodoItem)ali).setComplete(completeness);
+            else continue;
         }
-    }
-
-    /**
-     * Gets the list item at the specific index.
-     * @param index The index of the item to grab.
-     * @return the item at the index.
-     */
-    public AbstractListItem getItemByIndex(int index) {
-        return subTasks.get(index);
     }
 
     /**
@@ -86,11 +96,16 @@ public class ListItem extends AbstractListItem {
         int count = 0;
         for (AbstractListItem item :
                 subTasks) {
-            if (item instanceof TodoItem)
+            ListItem casted = (ListItem)item;
+            if (casted.countItems() == 0)
                 count++;
-            else if (item instanceof ListItem)
-                count += ((ListItem)item).countAllItems();
+            else
+                count += casted.countAllItems();
         }
         return count;
+    }
+
+    public AbstractListItem getAt(int index) {
+        return subTasks.get(index);
     }
 }

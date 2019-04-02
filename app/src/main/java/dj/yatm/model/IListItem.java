@@ -10,7 +10,7 @@ public interface IListItem {
      * Retrieves the item's id.
      * @return the id of this item.
      */
-    int getId();
+    long getId();
 
     /**
      * Gets this item's priority.
