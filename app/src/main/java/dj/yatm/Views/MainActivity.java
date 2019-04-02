@@ -35,35 +35,30 @@ public class MainActivity extends AppCompatActivity {
         return database;
     }
 
-    public void initVariables(ArrayList<ListItem> items){
+    public void initVariables(ListItem listItem){
         mainListManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mainList.setLayoutManager(mainListManager);
-        if (items == null) {
-            items = new ArrayList<>();
+        if (listItem == null) {
+            listItem = new ListItem(database);
 
             ListItem newItem = new ListItem(database);
-            newItem.setTitle("Todo List");
-            items.add(newItem);
-
-            newItem = new ListItem(database);
             newItem.setTitle("Walk Dog");
-            items.add(newItem);
+            listItem.addItem(newItem);
 
             newItem = new ListItem(database);
             newItem.setTitle("Ask for Raise");
-            items.add(newItem);
+            listItem.addItem(newItem);
 
             newItem = new ListItem(database);
             newItem.setTitle("Make Model");
-            items.add(newItem);
+            listItem.addItem(newItem);
 
             newItem = new ListItem(database);
             newItem.setTitle("Chicken Salad List");
-            items.add(newItem);
+            listItem.addItem(newItem);
         }
-        title.setText(items.get(0).getTitle());
-        items.remove(0);
-        mainListAdapter = new MainListAdapter(this, items);
+        title.setText(listItem.getTitle());
+        mainListAdapter = new MainListAdapter(this, listItem.getSubTasks());
         mainList.setAdapter(mainListAdapter);
     }
 
@@ -79,13 +74,13 @@ public class MainActivity extends AppCompatActivity {
         database = null;//Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "yatm").build();
         setContentView(R.layout.activity_main);
         Bundle bundle = this.getIntent().getExtras();
-        ArrayList<ListItem> items = null;
+        ListItem listItem = null;
         if (bundle != null) {
-            items = (ArrayList<ListItem>) bundle.getSerializable("tasks");
+            listItem = (ListItem) bundle.getSerializable("tasks");
         }
         List<AbstractListItem> list = null;
         assignIDs();
-        initVariables(items);
+        initVariables(listItem);
 
         addListButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,11 +154,12 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
             ListItem newData = new ListItem(database);
             if (item.getTitle().equals("Chicken Salad List")){
-                newData.addItem(item);
                 ListItem newItem = new ListItem(database);
                 newData.setTitle("chicken");
+                newData.addItem(newItem);
 
                 newItem = new ListItem(database);
+                newItem.setTitle("Hallo");
                 newData.addItem(newItem);
 
                 newItem = new ListItem(database);

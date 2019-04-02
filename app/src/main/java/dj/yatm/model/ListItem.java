@@ -17,6 +17,14 @@ public class ListItem extends AbstractListItem {
         subTasks = new ArrayList<>();
     }
 
+    public ArrayList<ListItem> getSubTasks() {
+        ArrayList<ListItem> list = new ArrayList<>();
+        for (int i = 0; i < this.subTasks.size(); i++){
+            list.add((ListItem)this.subTasks.get(i));
+        }
+        return list;
+    }
+
     public ListItem(IListItemObserver observer) {
         super(observer);
         subTasks = new ArrayList<>();
