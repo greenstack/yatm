@@ -1,16 +1,15 @@
 package dj.yatm.model;
 
 import java.util.ArrayList;
-//import androidx.room.Entity;
-//import androidx.room.Ignore;
+import java.util.Date;
 
 /**
  * Created by Joseph on 3/21/2019.
  */
-//@Entity(tableName = "tasks")
 public class ListItem extends AbstractListItem {
-    //@Ignore
     ArrayList<AbstractListItem> subTasks;
+
+    boolean isComplete = false;
 
     public ListItem() {
         super();
@@ -30,6 +29,14 @@ public class ListItem extends AbstractListItem {
         subTasks = new ArrayList<>();
     }
 
+    public ListItem(IListItemObserver observer, String title, int priority, Date dueDate) {
+        super(observer);
+        setTitle(title);
+        setPriority(priority);
+        setDueDate(dueDate);
+        subTasks = new ArrayList<>();
+    }
+
     /**
      * Creates a new instance of ListItem.
      */
@@ -44,6 +51,7 @@ public class ListItem extends AbstractListItem {
      */
     @Override
     public boolean isComplete() {
+        if (subTasks.size() == 0) return isComplete;
         for (AbstractListItem ali:
              subTasks) {
             if (!ali.isComplete()) return false;
@@ -59,7 +67,7 @@ public class ListItem extends AbstractListItem {
         addItem(item, true);
     }
 
-    void addItem(AbstractListItem item, boolean notify) {
+    public void addItem(AbstractListItem item, boolean notify) {
         item.parentId = id;
         item.notify(notify ? ListItemEvent.Update : ListItemEvent.None);
         subTasks.add(item);
@@ -71,8 +79,9 @@ public class ListItem extends AbstractListItem {
      * @return true if the item was successfully removed.
      */
     public boolean removeItem(AbstractListItem item) {
-        item.delete();
-        return subTasks.remove(item);
+        boolean result = subTasks.remove(item);
+        if (result) item.delete();
+        return result;
     }
 
     /**
@@ -81,6 +90,10 @@ public class ListItem extends AbstractListItem {
      * @param recurse Pass in true to complete sublists as well.
      */
     public void setCompletenessForAll(boolean completeness, boolean recurse) {
+        if (subTasks.size() == 0) {
+            isComplete = completeness;
+            notify(ListItemEvent.Update);
+        }
         for (AbstractListItem ali :
                 subTasks) {
             if (ali instanceof ListItem && recurse) ((ListItem) ali).setCompletenessForAll(completeness,true);

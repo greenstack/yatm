@@ -1,30 +1,87 @@
 package dj.yatm.model;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
+import java.io.Serializable;
+
 /**
  * Created by Joseph Newman on 4/2/2019.
  */
-public final class TaskListContract {
+public final class TaskListContract implements IListItemObserver, Serializable {
     private TaskListContract() {}
 
-    private static final String SQL_CREATE_ENTRIES =
-            "CREATE TABLE " + ItemEntry.TABLE_NAME + " (" +
-                    ItemEntry._ID + " INTEGER PRIMARY KEY, " +
-                    ItemEntry.COLUMN_NAME_TITLE + " TEXT, " +
-                    ItemEntry.COLUMN_NAME_PARENT_ID + " INTEGER, " +
-                    ItemEntry.COLUMN_NAME_PRIORITY + " INTEGER, " +
-                    ItemEntry.COLUMN_NAME_CREATED_DATE + " TEXT, " +
-                    ItemEntry.COLUMN_NAME_DUE_DATE + " TEXT)";
+    static final String SQL_CREATE_ENTRIES =
+            "CREATE TABLE IF NOT EXISTS " + TaskEntry.TABLE_NAME + " (" +
+                    TaskEntry._ID + " INTEGER PRIMARY KEY, " +
+                    TaskEntry.COLUMN_NAME_TITLE + " TEXT, " +
+                    TaskEntry.COLUMN_NAME_PARENT_ID + " INTEGER, " +
+                    TaskEntry.COLUMN_NAME_PRIORITY + " INTEGER, " +
+                    TaskEntry.COLUMN_NAME_CREATED_DATE + " TEXT, " +
+                    TaskEntry.COLUMN_NAME_DUE_DATE + " TEXT)";
 
-    private static final String SQL_DELETE_ENTRIES =
-            "DROP TABLE IF EXISTS " + ItemEntry.TABLE_NAME;
+    static final String SQL_DELETE_ENTRIES =
+            "DROP TABLE IF EXISTS " + TaskEntry.TABLE_NAME;
 
+    @Override
+    public void Update(AbstractListItem sender, ListItemEvent event) {
+        ListItem task = (ListItem)sender;
+        switch (event) {
+            case Create:
+                long id = createTask(task);
+                task.id = id;
+                break;
+            case Delete:
+                deleteTask(task);
+                break;
+            case Update:
+                updateTask(task);
+                break;
+            case None:
+            default:
+                break;
+        }
+    }
 
-    public static class ItemEntry implements BaseColumns {
+    private long createTask(ListItem li) {
+        return TaskListDbHelper.get().createTask(li);
+    }
+
+    private void deleteTask(ListItem li) {
+        TaskListDbHelper.get().deleteTask(li);
+    }
+
+    private void updateTask(ListItem li) {
+        TaskListDbHelper.get().updateTask(li);
+    }
+
+    private static TaskListContract instance;
+    public static TaskListContract get() {
+        return instance;
+    }
+
+    public static TaskListContract init(Context context) {
+        if (instance == null) {
+            instance = new TaskListContract();
+            TaskListDbHelper.init(context);
+        }
+        return instance;
+    }
+
+    private ContentValues buildValues(ListItem li) {
+        ContentValues values = new ContentValues();
+        values.put(TaskEntry.COLUMN_NAME_TITLE, li.getTitle());
+        values.put(TaskEntry.COLUMN_NAME_PRIORITY, li.getPriority());
+        values.put(TaskEntry.COLUMN_NAME_PARENT_ID, li.parentId);
+        values.put(TaskEntry.COLUMN_NAME_DUE_DATE, li.getDueDate().toString());
+        values.put(TaskEntry.COLUMN_NAME_CREATED_DATE, li.getCreation().toString());
+        return values;
+    }
+
+    public static class TaskEntry implements BaseColumns {
         public static final String TABLE_NAME = "tasks";
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_PRIORITY = "priority";
@@ -32,25 +89,4 @@ public final class TaskListContract {
         public static final String COLUMN_NAME_DUE_DATE = "due_date";
         public static final String COLUMN_NAME_PARENT_ID = "parent_id";
     }
-
-    public class TaskListDbHelper extends SQLiteOpenHelper {
-        public static final int DATABASE_VERSION = 1;
-        public static final String DATABASE_NAME = "TaskList.db";
-
-        public TaskListDbHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL(SQL_CREATE_ENTRIES);
-        }
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL(SQL_DELETE_ENTRIES);
-            onCreate(db);
-        }
-        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            onUpgrade(db, oldVersion, newVersion);
-        }
-    }
-
 }

@@ -20,6 +20,7 @@ import dj.yatm.R;
 import dj.yatm.model.AbstractListItem;
 import dj.yatm.model.IListItemObserver;
 import dj.yatm.model.ListItem;
+import dj.yatm.model.TaskListContract;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,10 +56,13 @@ public class MainActivity extends AppCompatActivity {
 
             newItem = new ListItem(database);
             newItem.setTitle("Chicken Salad List");
+            newItem.addItem(new ListItem(database, "Chicken", 1, null));
+            newItem.addItem(new ListItem(database, "Lettuce", 1, null));
+            newItem.addItem(new ListItem(database, "Dressing", 1, null));
             listItem.addItem(newItem);
         }
         title.setText(listItem.getTitle());
-        mainListAdapter = new MainListAdapter(this, listItem.getSubTasks());
+        mainListAdapter = new MainListAdapter(this, listItem);
         mainList.setAdapter(mainListAdapter);
     }
 
@@ -71,14 +75,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        database = null;//Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "yatm").build();
+        database = TaskListContract.init(getApplicationContext());
         setContentView(R.layout.activity_main);
         Bundle bundle = this.getIntent().getExtras();
         ListItem listItem = null;
         if (bundle != null) {
             listItem = (ListItem) bundle.getSerializable("tasks");
         }
-        List<AbstractListItem> list = null;
         assignIDs();
         initVariables(listItem);
 
@@ -94,11 +97,11 @@ public class MainActivity extends AppCompatActivity {
 
     class MainListAdapter extends RecyclerView.Adapter<MainListHolder> {
         private LayoutInflater inflater;
-        private List<ListItem> items;
+        private ListItem list;
 
-        public MainListAdapter(Context context, List<ListItem> items){
+        public MainListAdapter(Context context, ListItem list){
             inflater = LayoutInflater.from(context);
-            this.items = items;
+            this.list = list;
         }
 
         @Override
@@ -109,13 +112,13 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(MainListHolder holder, int position){
-            ListItem item = items.get(position);
+            ListItem item = (ListItem)list.getAt(position);
             holder.bind(item);
         }
 
         @Override
         public int getItemCount() {
-            return items.size(); // number of items
+            return list.countItems(); // number of items
         }
     }
 
@@ -123,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
         TextView title;
         ImageButton check;
         ListItem item;
-
 
         public MainListHolder(final View view){
             super(view);
@@ -133,11 +135,11 @@ public class MainActivity extends AppCompatActivity {
             check.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (item.isComplete()) {
-                        check.setImageResource(R.drawable.check);
+                    if (!item.isComplete()) {
+                        check.setImageResource(R.drawable.check_checked);
                         item.setCompletenessForAll(true, true);
                     } else {
-                        check.setImageResource(R.drawable.check_checked);
+                        check.setImageResource(R.drawable.check);
                         item.setCompletenessForAll(false, true);
                     }
                 }
@@ -146,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
         void bind(ListItem item){
             title.setText(item.getTitle()); //item.getTitle());
+            check.setImageResource(item.isComplete() ? R.drawable.check_checked : R.drawable.check);
             this.item = item;
             return;
         }
@@ -153,22 +156,10 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View view) {
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
             ListItem newData = new ListItem(database);
-            if (item.getTitle().equals("Chicken Salad List")){
-                ListItem newItem = new ListItem(database);
-                newData.setTitle("chicken");
-                newData.addItem(newItem);
-
-                newItem = new ListItem(database);
-                newItem.setTitle("Hallo");
-                newData.addItem(newItem);
-
-                newItem = new ListItem(database);
-                newItem.setTitle("lettuce");
-                newData.addItem(newItem);
-
-                newItem = new ListItem(database);
-                newItem.setTitle("Dressing");
-                newData.addItem(newItem);
+            if (item.countItems() > 0){
+                for (AbstractListItem ali : item.getSubTasks()) {
+                    newData.addItem(ali, false);
+                }
             } else {
                 newData.addItem(item);
             }
@@ -176,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
             bundle.putSerializable("tasks", newData);
             intent.putExtras(bundle);
             startActivity(intent);
-
         }
     }
 
