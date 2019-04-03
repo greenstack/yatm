@@ -21,6 +21,7 @@ public final class TaskListContract implements IListItemObserver, Serializable {
                     TaskEntry.COLUMN_NAME_PARENT_ID + " INTEGER, " +
                     TaskEntry.COLUMN_NAME_PRIORITY + " INTEGER, " +
                     TaskEntry.COLUMN_NAME_CREATED_DATE + " TEXT, " +
+                    TaskEntry.COLUMN_NAME_COMPLETED + " INTEGER DEFAULT 0" +
                     TaskEntry.COLUMN_NAME_DUE_DATE + " TEXT)";
 
     static final String SQL_DELETE_ENTRIES =
@@ -86,6 +87,7 @@ public final class TaskListContract implements IListItemObserver, Serializable {
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_PRIORITY = "priority";
         public static final String COLUMN_NAME_CREATED_DATE = "created_date";
+        public static final String COLUMN_NAME_COMPLETED = "complete";
         public static final String COLUMN_NAME_DUE_DATE = "due_date";
         public static final String COLUMN_NAME_PARENT_ID = "parent_id";
     }

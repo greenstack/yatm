@@ -155,16 +155,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(MainActivity.this, MainActivity.class);
-            ListItem newData = new ListItem(database);
-            if (item.countItems() > 0){
-                for (AbstractListItem ali : item.getSubTasks()) {
-                    newData.addItem(ali, false);
-                }
-            } else {
-                newData.addItem(item);
-            }
+
             Bundle bundle = new Bundle();
-            bundle.putSerializable("tasks", newData);
+            bundle.putSerializable("tasks", item);
             intent.putExtras(bundle);
             startActivity(intent);
         }
