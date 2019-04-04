@@ -17,7 +17,7 @@ import static java.time.Instant.now;
  */
 public abstract class AbstractListItem implements IListItem, Serializable {
     //@PrimaryKey
-    long id;
+    long id = 1;
     //@ColumnInfo(name = "title")
     private String title;
     //@ColumnInfo(name = "category")

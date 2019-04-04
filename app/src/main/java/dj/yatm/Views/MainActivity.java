@@ -41,27 +41,25 @@ public class MainActivity extends AppCompatActivity {
         mainListManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mainList.setLayoutManager(mainListManager);
         if (listItem == null) {
-            listItem = new ListItem(database);
+            listItem = new ListItem(database, "root", 1, "", null);
 
-            ListItem newItem = new ListItem(database);
-            newItem.setTitle("Walk Dog");
+            ListItem newItem = new ListItem(database, "Walk Dog", 1, "", null);
             listItem.addItem(newItem);
 
-            newItem = new ListItem(database);
-            newItem.setTitle("Ask for Raise");
+            newItem = new ListItem(database, "Ask for Raise", 1, "", null);
             listItem.addItem(newItem);
 
-            newItem = new ListItem(database);
-            newItem.setTitle("Make Model");
+            newItem = new ListItem(database, "Make Model", 1, "", null);
             listItem.addItem(newItem);
 
-            newItem = new ListItem(database);
-            newItem.setTitle("Chicken Salad List");
+            newItem = new ListItem(database, "Chicken Salad List", 1, "", null);
             newItem.addItem(new ListItem(database, "Chicken", 1, "",null));
             newItem.addItem(new ListItem(database, "Lettuce", 1,"", null));
             newItem.addItem(new ListItem(database, "Dressing", 1, "",null));
             listItem.addItem(newItem);
         }
+        ListItem root = new ListItem();
+        TaskListDbHelper.getInstance().buildTree(root);
         title.setText(listItem.getTitle());
         mainListAdapter = new MainListAdapter(this, listItem);
         mainList.setAdapter(mainListAdapter);
@@ -77,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TaskListDbHelper.init(getApplicationContext());
+        TaskListDbHelper.getInstance().totalReset();
         database = TaskListContract.get();
         setContentView(R.layout.activity_main);
         Bundle bundle = this.getIntent().getExtras();
@@ -94,6 +93,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        TaskListDbHelper.getInstance().close();
     }
 
     class MainListAdapter extends RecyclerView.Adapter<MainListHolder> {

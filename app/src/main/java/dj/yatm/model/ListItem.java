@@ -1,5 +1,7 @@
 package dj.yatm.model;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -71,7 +73,7 @@ public class ListItem extends AbstractListItem {
 
     public void addItem(AbstractListItem item, boolean notify) {
         item.parentId = id;
-        item.notify(notify ? ListItemEvent.Update : ListItemEvent.None);
+        if (notify) item.notify(ListItemEvent.Update);
         subTasks.add(item);
     }
 
@@ -126,6 +128,12 @@ public class ListItem extends AbstractListItem {
                 count += casted.countAllItems();
         }
         return count;
+    }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return getTitle() + "; id: " + id + "; parent_id: " + parentId;
     }
 
     public AbstractListItem getAt(int index) {

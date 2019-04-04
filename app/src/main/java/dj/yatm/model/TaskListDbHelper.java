@@ -31,8 +31,6 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
     static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + TaskEntry.TABLE_NAME;
 
-    private SQLiteDatabase db;
-
     private static TaskListDbHelper instance;
     public static TaskListDbHelper init(Context context) {
         instance = new TaskListDbHelper(context);
@@ -44,6 +42,12 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
 
     private TaskListDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public void totalReset() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(SQL_DELETE_ENTRIES);
+        db.execSQL(SQL_CREATE_ENTRIES);
     }
 
     @Override
@@ -58,6 +62,11 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
     }
 
     public void close() {
+        // TODO: REMOVE THESE LINES!
+        // Reset the database on each relaunch of the app.
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(SQL_DELETE_ENTRIES);
+        db.execSQL(SQL_CREATE_ENTRIES);
         db.close();
     }
 
@@ -81,7 +90,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
     }
 
     void updateTask(ListItem li) {
-        Log.d("yatm", "Update");
+        Log.d("yatm", "Updating " + li.getTitle() + ": parent id is " + li.parentId);
         this.getWritableDatabase().update(
                 TaskEntry.TABLE_NAME, buildValues(li),
                 TaskEntry._ID + " LIKE ?",
@@ -138,7 +147,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         return read;
     }
 
-    public ListItem buildTree(ListItem parent) {
+    public void buildTree(ListItem parent) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] projection = {
                 TaskEntry._ID,
@@ -169,8 +178,6 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
             buildTree(child);
             parent.addItem(child, false);
         }
-
-        return parent;
     }
 
     public static class TaskEntry implements BaseColumns {
