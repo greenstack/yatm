@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import dj.yatm.R;
+import dj.yatm.model.ListItem;
 
 public class ListDataActivity extends AppCompatActivity {
 
@@ -16,12 +17,16 @@ public class ListDataActivity extends AppCompatActivity {
     private Spinner type;
     private Spinner priority;
     private Button saveButton;
+    private Presenter presenter;
+    private ListItem listItem;
 
     public void initVariables(){
         name = findViewById(R.id.name_edit_text);
         type = findViewById(R.id.type_spinner);
         priority = findViewById(R.id.priority_spinner);
         saveButton = findViewById(R.id.save_setup_button);
+        presenter = new Presenter();
+        listItem = new ListItem();
 
     }
 
@@ -33,9 +38,27 @@ public class ListDataActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                listItem.setTitle(name.getText().toString());
+                listItem.setCategory(type.getSelectedItem().toString());
+                int numPriority = 0;
+                switch(priority.getSelectedItem().toString()){
+                    case "High":
+                        numPriority = 1;
+                        break;
+                    case "Medium":
+                        numPriority = 2;
+                        break;
+                    case "Low":
+                        numPriority = 3;
+                        break;
+                }
+                listItem.setPriority(numPriority);
+                // This is where set date will go.
+                presenter.createTask(listItem);
                 finish();
             }
         });
+        getSupportActionBar().setTitle("Create New Task");
     }
 
 

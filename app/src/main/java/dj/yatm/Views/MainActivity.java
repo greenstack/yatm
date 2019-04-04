@@ -132,9 +132,11 @@ public class MainActivity extends AppCompatActivity {
         TextView title;
         ImageButton check;
         ListItem item;
+        private Presenter presenter;
 
         public MainListHolder(final View view){
             super(view);
+            presenter = new Presenter();
             view.setOnClickListener(this);
             title = view.findViewById(R.id.title);
             check = view.findViewById(R.id.check_button);
@@ -144,9 +146,11 @@ public class MainActivity extends AppCompatActivity {
                     if (!item.isComplete()) {
                         check.setImageResource(R.drawable.check_checked);
                         item.setCompletenessForAll(true, true);
+                        presenter.updateTask(item);
                     } else {
                         check.setImageResource(R.drawable.check);
                         item.setCompletenessForAll(false, true);
+                        presenter.updateTask(item);
                     }
                 }
             });
