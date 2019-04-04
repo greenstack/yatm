@@ -17,6 +17,17 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "TaskList.db";
 
+    static final String[] FULL_PROJECTION = {
+        TaskEntry._ID,
+        TaskEntry.COLUMN_NAME_COMPLETED,
+        TaskEntry.COLUMN_NAME_CREATED_DATE,
+        TaskEntry.COLUMN_NAME_DUE_DATE,
+        TaskEntry.COLUMN_NAME_PARENT_ID,
+        TaskEntry.COLUMN_NAME_PRIORITY,
+        TaskEntry.COLUMN_NAME_TITLE,
+        TaskEntry.COLUMN_NAME_CATEGORY
+    };
+
     static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE IF NOT EXISTS " + TaskEntry.TABLE_NAME + " (" +
                     TaskEntry._ID + " INTEGER PRIMARY KEY, " +
@@ -124,7 +135,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         String sortOrder = TaskEntry._ID + " DESC";
         Cursor cursor = db.query(
                 TaskEntry.TABLE_NAME,
-                projection,
+                FULL_PROJECTION,
                 selection,
                 selectionArgs,
                 null,
@@ -149,16 +160,6 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
 
     public void buildTree(ListItem parent) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] projection = {
-                TaskEntry._ID,
-                TaskEntry.COLUMN_NAME_COMPLETED,
-                TaskEntry.COLUMN_NAME_CREATED_DATE,
-                TaskEntry.COLUMN_NAME_DUE_DATE,
-                TaskEntry.COLUMN_NAME_PARENT_ID,
-                TaskEntry.COLUMN_NAME_PRIORITY,
-                TaskEntry.COLUMN_NAME_TITLE,
-                TaskEntry.COLUMN_NAME_CATEGORY
-        };
 
         String selection = TaskEntry.COLUMN_NAME_PARENT_ID + " = ?";
         String[] selectionArgs = { String.valueOf(parent.id) };
@@ -166,7 +167,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         String sortOrder = TaskEntry.COLUMN_NAME_PARENT_ID + " DESC";
         Cursor cursor = db.query(
                 TaskEntry.TABLE_NAME,
-                projection,
+                FULL_PROJECTION,
                 selection,
                 selectionArgs,
                 null,
