@@ -29,20 +29,22 @@ public class ListItem extends AbstractListItem {
         subTasks = new ArrayList<>();
     }
 
-    public ListItem(IListItemObserver observer, String title, int priority, Date dueDate) {
+    public ListItem(IListItemObserver observer, String title, int priority, String category, Date dueDate) {
+        this(observer, title, priority, category, dueDate, true);
+    }
+
+    public ListItem(IListItemObserver observer, String title, int priority, String category, Date dueDate, boolean notify) {
         super(observer);
         setTitle(title);
         setPriority(priority);
+        setCategory(category);
         setDueDate(dueDate);
+        if (notify) notify(ListItemEvent.Create);
         subTasks = new ArrayList<>();
     }
 
-    /**
-     * Creates a new instance of ListItem.
-     */
-    public ListItem(Iterable<IListItemObserver> observers) {
-        super(observers);
-        subTasks = new ArrayList<>();
+    public void notifyOfCreation() {
+        notify(ListItemEvent.Create);
     }
 
     /**

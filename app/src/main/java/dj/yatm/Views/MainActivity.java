@@ -21,6 +21,7 @@ import dj.yatm.model.AbstractListItem;
 import dj.yatm.model.IListItemObserver;
 import dj.yatm.model.ListItem;
 import dj.yatm.model.TaskListContract;
+import dj.yatm.model.TaskListDbHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,9 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
             newItem = new ListItem(database);
             newItem.setTitle("Chicken Salad List");
-            newItem.addItem(new ListItem(database, "Chicken", 1, null));
-            newItem.addItem(new ListItem(database, "Lettuce", 1, null));
-            newItem.addItem(new ListItem(database, "Dressing", 1, null));
+            newItem.addItem(new ListItem(database, "Chicken", 1, "",null));
+            newItem.addItem(new ListItem(database, "Lettuce", 1,"", null));
+            newItem.addItem(new ListItem(database, "Dressing", 1, "",null));
             listItem.addItem(newItem);
         }
         title.setText(listItem.getTitle());
@@ -75,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        database = TaskListContract.init(getApplicationContext());
+        TaskListDbHelper.init(getApplicationContext());
+        database = TaskListContract.get();
         setContentView(R.layout.activity_main);
         Bundle bundle = this.getIntent().getExtras();
         ListItem listItem = null;
@@ -92,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
     class MainListAdapter extends RecyclerView.Adapter<MainListHolder> {

@@ -47,7 +47,6 @@ public abstract class AbstractListItem implements IListItem, Serializable {
         observers = new HashSet<>();
         if (observer != null)
             observers.add(observer);
-        notify(ListItemEvent.Create);
     }
 
     AbstractListItem(Iterable<IListItemObserver> observers) {
@@ -57,7 +56,6 @@ public abstract class AbstractListItem implements IListItem, Serializable {
                 observers) {
             this.observers.add(observer);
         }
-        notify(ListItemEvent.Create);
     }
 
     @Override
@@ -70,6 +68,10 @@ public abstract class AbstractListItem implements IListItem, Serializable {
                 observers) {
             observer.Update(this, event);
         }
+    }
+
+    final public void addObserver(IListItemObserver observer) {
+        observers.add(observer);
     }
 
     @Override
