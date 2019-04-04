@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private MainListAdapter mainListAdapter;
     private ImageButton addListButton;
     private TextView title;
+    public ListItem parentList;
+    private Presenter presenter;
 
     private static IListItemObserver database;
 
@@ -37,9 +40,50 @@ public class MainActivity extends AppCompatActivity {
         return database;
     }
 
-    public void initVariables(ListItem listItem){
+    public void initVariables(){
         mainListManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mainList.setLayoutManager(mainListManager);
+        title.setText(this.parentList.getTitle());
+        mainListAdapter = new MainListAdapter(this, this.parentList);
+        mainList.setAdapter(mainListAdapter);
+    }
+
+    public void assignIDs(){
+        mainList = this.findViewById(R.id.list_recycler);
+        addListButton = this.findViewById(R.id.add_list_button);
+        title = this.findViewById(R.id.title);
+    }
+
+    public void updateList(){
+        this.parentList = this.presenter.rebuildTree(this.parentList);
+
+        mainListAdapter.notifyDataSetChanged();
+        Log.d("yatm", "something");
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (this.parentList != null) {
+            updateList();
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        presenter = new Presenter();
+        TaskListDbHelper.init(getApplicationContext());
+        TaskListDbHelper.getInstance().totalReset();
+        database = TaskListContract.get();
+        setContentView(R.layout.activity_main);
+        Bundle bundle = this.getIntent().getExtras();
+        ListItem listItem = null;
+        if (bundle != null) {
+            listItem = (ListItem) bundle.getSerializable("tasks");
+        }
+        assignIDs();
+
         if (listItem == null) {
             listItem = new ListItem(database, "root", 1, "", null);
 
@@ -58,38 +102,19 @@ public class MainActivity extends AppCompatActivity {
             newItem.addItem(new ListItem(database, "Dressing", 1, "",null));
             listItem.addItem(newItem);
         }
-        ListItem root = new ListItem();
-        TaskListDbHelper.getInstance().buildTree(root);
-        title.setText(listItem.getTitle());
-        mainListAdapter = new MainListAdapter(this, listItem);
-        mainList.setAdapter(mainListAdapter);
-    }
+        this.parentList = listItem;
+        initVariables();
 
-    public void assignIDs(){
-        mainList = this.findViewById(R.id.list_recycler);
-        addListButton = this.findViewById(R.id.add_list_button);
-        title = this.findViewById(R.id.title);
-    }
+        Log.d("yatm", this.parentList.toString());
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        TaskListDbHelper.init(getApplicationContext());
-        TaskListDbHelper.getInstance().totalReset();
-        database = TaskListContract.get();
-        setContentView(R.layout.activity_main);
-        Bundle bundle = this.getIntent().getExtras();
-        ListItem listItem = null;
-        if (bundle != null) {
-            listItem = (ListItem) bundle.getSerializable("tasks");
-        }
-        assignIDs();
-        initVariables(listItem);
 
         addListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ListDataActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("parent", parentList);
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });

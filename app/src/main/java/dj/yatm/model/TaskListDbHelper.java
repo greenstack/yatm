@@ -118,16 +118,6 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
 
     public ListItem getItem(long id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String[] projection = {
-                TaskEntry._ID,
-                TaskEntry.COLUMN_NAME_COMPLETED,
-                TaskEntry.COLUMN_NAME_CREATED_DATE,
-                TaskEntry.COLUMN_NAME_DUE_DATE,
-                TaskEntry.COLUMN_NAME_PARENT_ID,
-                TaskEntry.COLUMN_NAME_PRIORITY,
-                TaskEntry.COLUMN_NAME_TITLE,
-                TaskEntry.COLUMN_NAME_CATEGORY
-        };
 
         String selection = TaskEntry._ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
@@ -145,6 +135,12 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         cursor.moveToNext();
         long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(TaskEntry._ID));
         return fromCursor(cursor);
+    }
+
+    public ListItem buildTreeFromId(long id) {
+        ListItem root = getItem(id);
+        buildTree(root);
+        return root;
     }
 
     private ListItem fromCursor(Cursor cursor) {

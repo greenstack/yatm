@@ -3,6 +3,7 @@ package dj.yatm.Views;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,6 +20,7 @@ public class ListDataActivity extends AppCompatActivity {
     private Button saveButton;
     private Presenter presenter;
     private ListItem listItem;
+    public ListItem parent;
 
     public void initVariables(){
         name = findViewById(R.id.name_edit_text);
@@ -35,6 +37,12 @@ public class ListDataActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.set_up_list);
         initVariables();
+        Bundle bundle = this.getIntent().getExtras();
+        this.parent = null;
+        if (bundle != null) {
+            this.parent = (ListItem) bundle.getSerializable("parent");
+        }
+        Log.d("yatm", parent.toString());
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,6 +63,8 @@ public class ListDataActivity extends AppCompatActivity {
                 listItem.setPriority(numPriority);
                 // This is where set date will go.
                 presenter.createTask(listItem);
+                parent.addItem(listItem);
+//                presenter.updateTask(parent);
                 finish();
             }
         });
