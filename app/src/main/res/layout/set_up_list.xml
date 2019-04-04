@@ -22,17 +22,19 @@
 
         <TextView
             android:id="@+id/name_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
+            android:layout_marginRight="20dp"
             android:text="@string/list_setup_name"
+            android:textAlignment="textEnd"
             android:textSize="20sp" />
 
         <EditText
             android:id="@+id/name_edit_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:ems="10"
             android:hint="@string/list_setup_name_edit"
             android:inputType="textPersonName" />
@@ -49,17 +51,19 @@
 
         <TextView
             android:id="@+id/textView5"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
+            android:layout_marginRight="20dp"
             android:text="@string/list_setup_type"
+            android:textAlignment="textEnd"
             android:textSize="20sp" />
 
         <Spinner
             android:id="@+id/type_spinner"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:entries="@array/type"
             android:spinnerMode="dropdown" />
 
@@ -79,6 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginRight="20dp"
             android:text="@string/list_setup_date"
             android:textSize="20sp" />
 
@@ -101,17 +106,19 @@
 
         <TextView
             android:id="@+id/priority_setup_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
+            android:layout_marginRight="20dp"
             android:text="@string/list_setup_priority"
+            android:textAlignment="textEnd"
             android:textSize="20sp" />
 
         <Spinner
             android:id="@+id/priority_spinner"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:entries="@array/priority"
             android:spinnerMode="dropdown" />
 
