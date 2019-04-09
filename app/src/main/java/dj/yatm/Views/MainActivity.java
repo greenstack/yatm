@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d("yatm", "first");
         TaskListDbHelper.init(getApplicationContext());
-        //TaskListDbHelper.getInstance().totalReset();
         presenter = new Presenter();
         setContentView(R.layout.activity_main);
         Bundle bundle = this.getIntent().getExtras();
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        TaskListDbHelper.getInstance().close();
+        //TaskListDbHelper.getInstance().close();
     }
 
     class MainListAdapter extends RecyclerView.Adapter<MainListHolder> {

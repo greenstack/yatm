@@ -5,18 +5,13 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 
-//import androidx.room.ColumnInfo;
-//import androidx.room.Entity;
-//import androidx.room.Ignore;
-//import androidx.room.PrimaryKey;
-
 import static java.time.Instant.now;
 
 /**
  * An abstract implementation of the IListItem.
  */
 public abstract class AbstractListItem implements IListItem, Serializable {
-    long id = 1;
+    long id = 0;
     private String title;
     private String category;
     private Date creation = Date.from(now());
@@ -32,6 +27,14 @@ public abstract class AbstractListItem implements IListItem, Serializable {
     AbstractListItem(IListItemObserver observer) {
         observers = new HashSet<>();
         observers.add(observer);
+    }
+
+    protected AbstractListItem(String title, int priority, String category, Date dueDate) {
+        this(TaskListContract.getInstance());
+        this.title = title;
+        this.priority = priority;
+        this.category = category;
+        this.dueDate = dueDate;
     }
 
     @Override
