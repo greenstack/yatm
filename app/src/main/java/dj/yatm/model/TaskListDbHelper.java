@@ -3,6 +3,7 @@ package dj.yatm.model;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
@@ -28,7 +29,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         TaskEntry.COLUMN_NAME_PARENT_ID,
         TaskEntry.COLUMN_NAME_PRIORITY,
         TaskEntry.COLUMN_NAME_TITLE,
-        TaskEntry.COLUMN_NAME_CATEGORY
+        TaskEntry.COLUMN_NAME_CATEGORY,
     };
 
     /**
@@ -52,9 +53,8 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
             "DROP TABLE IF EXISTS " + TaskEntry.TABLE_NAME;
 
     private static TaskListDbHelper instance;
-    public static TaskListDbHelper init(Context context) {
+    public static void init(Context context) {
         instance = new TaskListDbHelper(context);
-        return instance;
     }
     public static TaskListDbHelper getInstance(){
         return instance;
@@ -85,7 +85,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(SQL_DELETE_ENTRIES);
+        //db.execSQL(SQL_DELETE_ENTRIES);
         onCreate(db);
     }
 
@@ -103,6 +103,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         values.put(TaskEntry.COLUMN_NAME_DUE_DATE,
                 li.getDueDate() != null ? li.getDueDate().toString() : null);
         values.put(TaskEntry.COLUMN_NAME_CREATED_DATE, li.getCreation().toString());
+        values.put(TaskEntry.COLUMN_NAME_COMPLETED, li.isComplete());
         return values;
     }
 
@@ -127,7 +128,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         Log.d("yatm", "Updating " + li.getTitle() + ": parent id is " + li.parentId);
         writableDB.update(
                 TaskEntry.TABLE_NAME, buildValues(li),
-                TaskEntry._ID + " LIKE ?",
+                TaskEntry._ID + " == ?",
                 new String[] {String.valueOf(li.id)});
     }
 
@@ -163,7 +164,9 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
                 sortOrder
         );
         cursor.moveToNext();
-        return fromCursor(cursor);
+        ListItem read = fromCursor(cursor);
+        cursor.close();
+        return read;
     }
 
     /**
@@ -172,6 +175,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
      * @return the tree of the item.
      */
     public ListItem buildTreeFromId(long id) {
+        Log.d("yatm", "building tree for " + id);
         ListItem root = getItem(id);
         buildTree(root);
         return root;
@@ -182,13 +186,13 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
      * @param cursor the cursor reading the SQLite database.
      * @return the ListItem from the cursor's data.
      */
-    private ListItem fromCursor(Cursor cursor) {
+    private ListItem fromCursor(Cursor cursor) throws CursorIndexOutOfBoundsException {
         ListItem read = new ListItem(
-            cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_TITLE)),
-            cursor.getInt(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_PRIORITY)),
-            cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_CATEGORY)),
-            null,
-            false
+                cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_TITLE)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_PRIORITY)),
+                cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_CATEGORY)),
+                null,
+                false
         );
         long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(TaskEntry._ID));
         read.id = itemId;
@@ -216,10 +220,15 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
                 sortOrder
         );
         while (cursor.moveToNext()) {
-            ListItem child = fromCursor(cursor);
-            buildTree(child);
-            parent.addItem(child, false);
+            try {
+                ListItem child = fromCursor(cursor);
+                buildTree(child);
+                parent.addItem(child, false);
+            } catch (CursorIndexOutOfBoundsException kyubei) {
+                break;
+            }
         }
+        cursor.close();
     }
 
     /**

@@ -26,13 +26,9 @@ public class ListItem extends AbstractListItem {
     }
 
     public ListItem(String title, int priority, String category, Date dueDate, boolean notify) {
-        super(TaskListContract.getInstance());
-        setTitle(title);
-        setPriority(priority);
-        setCategory(category);
-        setDueDate(dueDate);
-        if (notify) notify(ListItemEvent.Create);
+        super(title, priority, category, dueDate);
         subTasks = new ArrayList<>();
+        if (notify) notify(ListItemEvent.Create);
     }
 
     public void notifyOfCreation() {

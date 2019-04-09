@@ -16,9 +16,7 @@ import android.widget.TextView;
 
 //import androidx.room.Room;
 import dj.yatm.R;
-import dj.yatm.model.IListItemObserver;
 import dj.yatm.model.ListItem;
-import dj.yatm.model.TaskListContract;
 import dj.yatm.model.TaskListDbHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,14 +47,12 @@ public class MainActivity extends AppCompatActivity {
         this.parentList = this.presenter.rebuildTree(this.parentList);
 
         mainListAdapter.update(this.parentList);
-        Log.d("yatm", "something");
     }
 
     @Override
     public void onResume(){
         super.onResume();
         if (this.parentList != null) {
-            Log.d("yatm", "second");
             updateList();
         }
     }
@@ -66,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d("yatm", "first");
         TaskListDbHelper.init(getApplicationContext());
-        TaskListDbHelper.getInstance().totalReset();
         presenter = new Presenter();
         setContentView(R.layout.activity_main);
         Bundle bundle = this.getIntent().getExtras();
@@ -86,8 +81,6 @@ public class MainActivity extends AppCompatActivity {
         this.parentList = listItem;
         initVariables();
 
-        Log.d("yatm", this.parentList.toString());
-
         addListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        TaskListDbHelper.getInstance().close();
+        //TaskListDbHelper.getInstance().close();
     }
 
     class MainListAdapter extends RecyclerView.Adapter<MainListHolder> {
