@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Bundle bundle = this.getIntent().getExtras();
         ListItem listItem;
-        if (bundle != null) {
+        if (bundle != null && getIntent().hasExtra("tasks")) {
             listItem = (ListItem) bundle.getSerializable("tasks");
         }
         else {
