@@ -3,6 +3,7 @@ package dj.yatm.Views;
 import android.content.Context;
 import android.content.Intent;
 import android.database.CursorIndexOutOfBoundsException;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,9 +13,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 //import androidx.room.Room;
+import java.util.Collections;
+
 import dj.yatm.R;
 import dj.yatm.model.ListItem;
 import dj.yatm.model.TaskListDbHelper;
@@ -25,14 +30,13 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mainListManager;
     private MainListAdapter mainListAdapter;
     private ImageButton addListButton;
-    private TextView title;
     public ListItem parentList;
     private Presenter presenter;
 
     public void initVariables(){
         mainListManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mainList.setLayoutManager(mainListManager);
-        title.setText(this.parentList.getTitle());
+        getSupportActionBar().setTitle(this.parentList.getTitle());
         mainListAdapter = new MainListAdapter(this, this.parentList);
         mainList.setAdapter(mainListAdapter);
     }
@@ -40,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     public void assignIDs(){
         mainList = this.findViewById(R.id.list_recycler);
         addListButton = this.findViewById(R.id.add_list_button);
-        title = this.findViewById(R.id.title);
     }
 
     public void updateList(){
@@ -131,22 +134,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class MainListHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class MainListHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         TextView title;
         ImageButton check;
-        TextView priority;
-        TextView type;
         ListItem item;
         private Presenter presenter;
+        RelativeLayout wholeItem;
+        TextView date;
 
         public MainListHolder(final View view){
             super(view);
             presenter = new Presenter();
             view.setOnClickListener(this);
+            view.setOnLongClickListener(this);
             title = view.findViewById(R.id.title);
-            type = view.findViewById(R.id.priority_list_text);
-            priority = view.findViewById(R.id.type_text);
             check = view.findViewById(R.id.check_button);
+            wholeItem = view.findViewById(R.id.list_item_whole);
+            date = view.findViewById(R.id.date_text_main);
             check.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -154,10 +158,22 @@ public class MainActivity extends AppCompatActivity {
                         check.setImageResource(R.drawable.check_checked);
                         item.setCompletenessForAll(true, true);
                         presenter.updateTask(item);
+                        wholeItem.setBackgroundColor(Color.parseColor("#ffffff"));
                     } else {
                         check.setImageResource(R.drawable.check);
                         item.setCompletenessForAll(false, true);
                         presenter.updateTask(item);
+                        switch(item.getPriority()){
+                            case 1:
+                                wholeItem.setBackgroundColor(Color.parseColor("#ffd9d9"));
+                                break;
+                            case 2:
+                                wholeItem.setBackgroundColor(Color.parseColor("#fffed9"));
+                                break;
+                            case 3:
+                                wholeItem.setBackgroundColor(Color.parseColor("#d9ffe6"));
+                                break;
+                        }
                     }
                 }
             });
@@ -165,20 +181,18 @@ public class MainActivity extends AppCompatActivity {
 
         void bind(ListItem item){
             title.setText(item.getTitle()); //item.getTitle());
-            if (item.getCategory() != null) {
-                type.setText(item.getCategory());
-            } else {
-                type.setText("");
+            if (item.getDueDate() != null) {
+                date.setText(item.getDueDate().toString());
             }
             switch(item.getPriority()){
                 case 1:
-                    priority.setText("High");
+                    this.wholeItem.setBackgroundColor(Color.parseColor("#ffd9d9"));
                     break;
                 case 2:
-                    priority.setText("Medium");
+                    this.wholeItem.setBackgroundColor(Color.parseColor("#fffed9"));
                     break;
                 case 3:
-                    priority.setText("Low");
+                    this.wholeItem.setBackgroundColor(Color.parseColor("#d9ffe6"));
                     break;
             }
             check.setImageResource(item.isComplete() ? R.drawable.check_checked : R.drawable.check);
@@ -194,6 +208,19 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtras(bundle);
             startActivity(intent);
         }
+
+        @Override
+        public boolean onLongClick(View view) {
+            Intent intent = new Intent(MainActivity.this, ListDataActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("parent", parentList);
+            bundle.putSerializable("Current", this.item);
+            intent.putExtras(bundle);
+            startActivity(intent);
+            Log.d("yatm", "It worked");
+            return true;
+        }
+
     }
 
 }

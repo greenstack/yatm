@@ -6,8 +6,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.Spinner;
+
+import java.util.Date;
 
 import dj.yatm.R;
 import dj.yatm.model.ListItem;
@@ -21,12 +24,14 @@ public class ListDataActivity extends AppCompatActivity {
     private Presenter presenter;
     public ListItem current;
     public ListItem parent;
+    public CalendarView calendarView;
 
     public void initVariables(){
         name = findViewById(R.id.name_edit_text);
         type = findViewById(R.id.type_spinner);
         priority = findViewById(R.id.priority_spinner);
         saveButton = findViewById(R.id.save_setup_button);
+        calendarView = findViewById(R.id.calendarView);
         presenter = new Presenter();
     }
 
@@ -37,9 +42,21 @@ public class ListDataActivity extends AppCompatActivity {
         initVariables();
         Bundle bundle = this.getIntent().getExtras();
         this.parent = null;
+
+        // Setting up info from previous activity
         if (bundle != null) {
             this.parent = (ListItem) bundle.getSerializable("parent");
         }
+        if (bundle.getSerializable("Current") != null){ // If you are editing
+            this.current = (ListItem) bundle.getSerializable("Current");
+            this.name.setText(this.current.getTitle());
+            this.priority.setSelection(this.current.getPriority());
+//            this.priority.setSelection(this.current.getCategory());
+            getSupportActionBar().setTitle("Edit Task");
+        } else {
+            getSupportActionBar().setTitle("Create New Task");
+        }
+
         Log.d("yatm", parent.toString());
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,26 +74,28 @@ public class ListDataActivity extends AppCompatActivity {
                         break;
                 }
                 if (current == null) {
+                    Date newDate = new Date(calendarView.getDate());
                     current = new ListItem(
                             name.getText().toString(),
                             numPriority,
                             type.getSelectedItem().toString(),
-                            null,
+                            newDate,
                             true
                     );
                     // This is where set date will go.
                     //presenter.createTask(listItem);
                     parent.addItem(current);
+
                 } else {
                     current.setTitle(name.getText().toString());
                     current.setPriority(numPriority);
                     current.setCategory(type.getSelectedItem().toString());
+                    current.setDueDate(new Date(calendarView.getDate()));
                     // set the date here.
                 }
                 finish();
             }
         });
-        getSupportActionBar().setTitle("Create New Task");
     }
 
 
