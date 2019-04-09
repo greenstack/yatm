@@ -19,6 +19,7 @@ public class ListDataActivity extends AppCompatActivity {
     private Spinner priority;
     private Button saveButton;
     private Presenter presenter;
+    public ListItem current;
     public ListItem parent;
 
     public void initVariables(){
@@ -55,16 +56,23 @@ public class ListDataActivity extends AppCompatActivity {
                         numPriority = 3;
                         break;
                 }
-                ListItem listItem = new ListItem(
-                        name.getText().toString(),
-                        numPriority,
-                        type.getSelectedItem().toString(),
-                        null,
-                        true
-                );
-                // This is where set date will go.
-                //presenter.createTask(listItem);
-                parent.addItem(listItem);
+                if (current == null) {
+                    current = new ListItem(
+                            name.getText().toString(),
+                            numPriority,
+                            type.getSelectedItem().toString(),
+                            null,
+                            true
+                    );
+                    // This is where set date will go.
+                    //presenter.createTask(listItem);
+                    parent.addItem(current);
+                } else {
+                    current.setTitle(name.getText().toString());
+                    current.setPriority(numPriority);
+                    current.setCategory(type.getSelectedItem().toString());
+                    // set the date here.
+                }
                 finish();
             }
         });
