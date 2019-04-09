@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     public void updateList(){
         this.parentList = this.presenter.rebuildTree(this.parentList);
 
-        mainListAdapter.notifyDataSetChanged();
+        mainListAdapter.update(this.parentList);
         Log.d("yatm", "something");
     }
 
@@ -113,6 +113,11 @@ public class MainActivity extends AppCompatActivity {
         public MainListAdapter(Context context, ListItem list){
             inflater = LayoutInflater.from(context);
             this.list = list;
+        }
+
+        public void update(ListItem newList){
+            list = newList;
+            notifyDataSetChanged();
         }
 
         @Override
