@@ -2,6 +2,7 @@ package dj.yatm.Views;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.CursorIndexOutOfBoundsException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,12 +14,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 //import androidx.room.Room;
 import dj.yatm.R;
-import dj.yatm.model.AbstractListItem;
 import dj.yatm.model.IListItemObserver;
 import dj.yatm.model.ListItem;
 import dj.yatm.model.TaskListContract;
@@ -33,12 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView title;
     public ListItem parentList;
     private Presenter presenter;
-
-    private static IListItemObserver database;
-
-    public static IListItemObserver getDatabase() {
-        return database;
-    }
 
     public void initVariables(){
         mainListManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -65,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     public void onResume(){
         super.onResume();
         if (this.parentList != null) {
+            Log.d("yatm", "second");
             updateList();
         }
     }
@@ -72,41 +64,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        presenter = new Presenter();
+        Log.d("yatm", "first");
         TaskListDbHelper.init(getApplicationContext());
         TaskListDbHelper.getInstance().totalReset();
-        database = TaskListContract.get();
+        presenter = new Presenter();
         setContentView(R.layout.activity_main);
         Bundle bundle = this.getIntent().getExtras();
-        ListItem listItem = null;
+        ListItem listItem;
         if (bundle != null) {
             listItem = (ListItem) bundle.getSerializable("tasks");
         }
+        else {
+            try {
+                listItem = TaskListDbHelper.getInstance().buildTreeFromId(1);
+            } catch (CursorIndexOutOfBoundsException cioobe) {
+                listItem = new ListItem("Task List", 1, "", null);
+            }
+        }
         assignIDs();
 
-        if (listItem == null) {
-            listItem = new ListItem(database, "root", 1, "", null);
-
-            ListItem newItem = new ListItem(database, "Walk Dog", 1, "", null);
-            listItem.addItem(newItem);
-
-            newItem = new ListItem(database, "Ask for Raise", 1, "", null);
-            listItem.addItem(newItem);
-
-            newItem = new ListItem(database, "Make Model", 1, "", null);
-            listItem.addItem(newItem);
-
-            newItem = new ListItem(database, "Chicken Salad List", 1, "", null);
-            newItem.addItem(new ListItem(database, "Chicken", 1, "",null));
-            newItem.addItem(new ListItem(database, "Lettuce", 1,"", null));
-            newItem.addItem(new ListItem(database, "Dressing", 1, "",null));
-            listItem.addItem(newItem);
-        }
         this.parentList = listItem;
         initVariables();
 
         Log.d("yatm", this.parentList.toString());
-
 
         addListButton.setOnClickListener(new View.OnClickListener() {
             @Override

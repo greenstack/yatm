@@ -1,17 +1,13 @@
 package dj.yatm.model;
 
-import android.provider.BaseColumns;
-
-import java.io.Serializable;
-
 /**
  * Created by Joseph Newman on 4/2/2019.
  */
-public final class TaskListContract implements IListItemObserver, Serializable {
+public final class TaskListContract implements IListItemObserver {
     private TaskListContract() {}
 
     private static TaskListContract instance;
-    public static TaskListContract get() {
+    public static TaskListContract getInstance() {
         if (instance == null) instance = new TaskListContract();
         return instance;
     }
@@ -21,8 +17,7 @@ public final class TaskListContract implements IListItemObserver, Serializable {
         ListItem task = (ListItem)sender;
         switch (event) {
             case Create:
-                long id = createTask(task);
-                task.id = id;
+                task.id = createTask(task);
                 break;
             case Delete:
                 deleteTask(task);

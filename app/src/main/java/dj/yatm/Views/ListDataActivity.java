@@ -19,7 +19,6 @@ public class ListDataActivity extends AppCompatActivity {
     private Spinner priority;
     private Button saveButton;
     private Presenter presenter;
-    private ListItem listItem;
     public ListItem parent;
 
     public void initVariables(){
@@ -28,8 +27,6 @@ public class ListDataActivity extends AppCompatActivity {
         priority = findViewById(R.id.priority_spinner);
         saveButton = findViewById(R.id.save_setup_button);
         presenter = new Presenter();
-        listItem = new ListItem();
-
     }
 
     @Override
@@ -46,8 +43,6 @@ public class ListDataActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listItem.setTitle(name.getText().toString());
-                listItem.setCategory(type.getSelectedItem().toString());
                 int numPriority = 0;
                 switch(priority.getSelectedItem().toString()){
                     case "High":
@@ -60,11 +55,16 @@ public class ListDataActivity extends AppCompatActivity {
                         numPriority = 3;
                         break;
                 }
-                listItem.setPriority(numPriority);
+                ListItem listItem = new ListItem(
+                        name.getText().toString(),
+                        numPriority,
+                        type.getSelectedItem().toString(),
+                        null,
+                        true
+                );
                 // This is where set date will go.
-                presenter.createTask(listItem);
+                //presenter.createTask(listItem);
                 parent.addItem(listItem);
-//                presenter.updateTask(parent);
                 finish();
             }
         });

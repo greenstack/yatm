@@ -16,46 +16,22 @@ import static java.time.Instant.now;
  * An abstract implementation of the IListItem.
  */
 public abstract class AbstractListItem implements IListItem, Serializable {
-    //@PrimaryKey
     long id = 1;
-    //@ColumnInfo(name = "title")
     private String title;
-    //@ColumnInfo(name = "category")
     private String category;
-    //@ColumnInfo(name = "creation_date")
-    private Date creation;
-    //@ColumnInfo(name = "due_date")
+    private Date creation = Date.from(now());
     private Date dueDate;
-    //@ColumnInfo(name = "priority")
     private int priority;
-    //@ColumnInfo(name = "parent_id")
-    protected Long parentId;
+    Long parentId;
 
     /**
      * A list of observers looking at this item.
      */
-    //@Ignore
-    HashSet<IListItemObserver> observers;
-
-    AbstractListItem() {
-        creation = Date.from(now());
-        observers = new HashSet<>();
-    }
+    private transient HashSet<IListItemObserver> observers;
 
     AbstractListItem(IListItemObserver observer) {
-        creation = Date.from(now());
         observers = new HashSet<>();
-        if (observer != null)
-            observers.add(observer);
-    }
-
-    AbstractListItem(Iterable<IListItemObserver> observers) {
-        creation = Date.from(now());
-        this.observers = new HashSet<>();
-        for (IListItemObserver observer :
-                observers) {
-            this.observers.add(observer);
-        }
+        observers.add(observer);
     }
 
     @Override

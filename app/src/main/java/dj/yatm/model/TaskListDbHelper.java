@@ -8,8 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import java.util.List;
-
 /**
  * Created by Joseph Newman on 4/3/2019.
  */
@@ -17,7 +15,12 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "TaskList.db";
 
-    static final String[] FULL_PROJECTION = {
+    private SQLiteDatabase readableDB;
+    private SQLiteDatabase writableDB;
+    /**
+     * List of all columns for the database to query on an item load.
+     */
+    private static final String[] FULL_PROJECTION = {
         TaskEntry._ID,
         TaskEntry.COLUMN_NAME_COMPLETED,
         TaskEntry.COLUMN_NAME_CREATED_DATE,
@@ -28,7 +31,10 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         TaskEntry.COLUMN_NAME_CATEGORY
     };
 
-    static final String SQL_CREATE_ENTRIES =
+    /**
+     * String that builds the tables in the database.
+     */
+    private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE IF NOT EXISTS " + TaskEntry.TABLE_NAME + " (" +
                     TaskEntry._ID + " INTEGER PRIMARY KEY, " +
                     TaskEntry.COLUMN_NAME_TITLE + " TEXT, " +
@@ -39,7 +45,10 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
                     TaskEntry.COLUMN_NAME_COMPLETED + " INTEGER DEFAULT 0, " +
                     TaskEntry.COLUMN_NAME_DUE_DATE + " TEXT)";
 
-    static final String SQL_DELETE_ENTRIES =
+    /**
+     * String that removes the table from the database.
+     */
+    private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + TaskEntry.TABLE_NAME;
 
     private static TaskListDbHelper instance;
@@ -51,14 +60,22 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         return instance;
     }
 
+    /**
+     * Creates a new TaskListDbHelper based on the context.
+     * @param context
+     */
     private TaskListDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        writableDB = getWritableDatabase();
+        readableDB = getReadableDatabase();
     }
 
+    /**
+     * Destroys and rebuilds the database tables.
+     */
     public void totalReset() {
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL(SQL_DELETE_ENTRIES);
-        db.execSQL(SQL_CREATE_ENTRIES);
+        writableDB.execSQL(SQL_DELETE_ENTRIES);
+        writableDB.execSQL(SQL_CREATE_ENTRIES);
     }
 
     @Override
@@ -73,12 +90,9 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
     }
 
     public void close() {
-        // TODO: REMOVE THESE LINES!
-        // Reset the database on each relaunch of the app.
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL(SQL_DELETE_ENTRIES);
-        db.execSQL(SQL_CREATE_ENTRIES);
-        db.close();
+        writableDB.close();
+        readableDB.close();
+        instance = null;
     }
 
     private ContentValues buildValues(ListItem li) {
@@ -92,38 +106,54 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         return values;
     }
 
+    /**
+     * Inserts the task into the database.
+     * @param li the task to insert.
+     * @return the id of the newly inserted item to the database.
+     */
     long createTask(ListItem li) {
         Log.d("yatm", "Creating " + li.getTitle());
         //return 0;
-        long id = this.getWritableDatabase().insert(TaskEntry.TABLE_NAME, null, buildValues(li));
+        long id = writableDB.insert(TaskEntry.TABLE_NAME, null, buildValues(li));
         Log.d("yatm", li.getTitle() + " was created with id " + String.valueOf(id));
         return id;
     }
 
+    /**
+     * Updates the task in the database.
+     * @param li the item to update.
+     */
     void updateTask(ListItem li) {
         Log.d("yatm", "Updating " + li.getTitle() + ": parent id is " + li.parentId);
-        this.getWritableDatabase().update(
+        writableDB.update(
                 TaskEntry.TABLE_NAME, buildValues(li),
                 TaskEntry._ID + " LIKE ?",
                 new String[] {String.valueOf(li.id)});
     }
 
+    /**
+     * Deletes the specified task from the database.
+     * @param li the item to delete from the database.
+     */
     void deleteTask(@org.jetbrains.annotations.NotNull ListItem li) {
         Log.d("yatm", "Delete");
-        this.getWritableDatabase().delete(
+        writableDB.delete(
                 TaskEntry.TABLE_NAME,
                 TaskEntry._ID + " == ?",
                 new String[]{String.valueOf(li.id)});
     }
 
+    /**
+     * Gets the listItem from the database with the given id, unpopulated.
+     * @param id the id of the listItem to load
+     * @return the item from the database, if it exists.
+     */
     public ListItem getItem(long id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
         String selection = TaskEntry._ID + " = ?";
         String[] selectionArgs = { String.valueOf(id) };
 
         String sortOrder = TaskEntry._ID + " DESC";
-        Cursor cursor = db.query(
+        Cursor cursor = readableDB.query(
                 TaskEntry.TABLE_NAME,
                 FULL_PROJECTION,
                 selection,
@@ -133,35 +163,50 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
                 sortOrder
         );
         cursor.moveToNext();
-        long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(TaskEntry._ID));
         return fromCursor(cursor);
     }
 
+    /**
+     * Builds a tree from the specified id.
+     * @param id the id of the listItem being read.
+     * @return the tree of the item.
+     */
     public ListItem buildTreeFromId(long id) {
         ListItem root = getItem(id);
         buildTree(root);
         return root;
     }
 
+    /**
+     * Takes a cursor and builds a ListItem from it.
+     * @param cursor the cursor reading the SQLite database.
+     * @return the ListItem from the cursor's data.
+     */
     private ListItem fromCursor(Cursor cursor) {
-        ListItem read = new ListItem();
+        ListItem read = new ListItem(
+            cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_TITLE)),
+            cursor.getInt(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_PRIORITY)),
+            cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_CATEGORY)),
+            null,
+            false
+        );
         long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(TaskEntry._ID));
         read.id = itemId;
         read.isComplete = cursor.getInt(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_COMPLETED)) == 1;
-        read.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_TITLE)));
         read.parentId = cursor.getLong(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_PARENT_ID));
-        read.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_CATEGORY)));
         return read;
     }
 
+    /**
+     * Inserts the tree into the parent. Assumes an empty parent.
+     * @param parent the parent to build the tree around.
+     */
     public void buildTree(ListItem parent) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
         String selection = TaskEntry.COLUMN_NAME_PARENT_ID + " = ?";
         String[] selectionArgs = { String.valueOf(parent.id) };
 
         String sortOrder = TaskEntry.COLUMN_NAME_PARENT_ID + " DESC";
-        Cursor cursor = db.query(
+        Cursor cursor = readableDB.query(
                 TaskEntry.TABLE_NAME,
                 FULL_PROJECTION,
                 selection,
@@ -177,14 +222,17 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Contains the table and column names of the database used by YATM.
+     */
     public static class TaskEntry implements BaseColumns {
-        public static final String TABLE_NAME = "tasks";
-        public static final String COLUMN_NAME_TITLE = "title";
-        public static final String COLUMN_NAME_PRIORITY = "priority";
-        public static final String COLUMN_NAME_CREATED_DATE = "created_date";
-        public static final String COLUMN_NAME_COMPLETED = "complete";
-        public static final String COLUMN_NAME_DUE_DATE = "due_date";
-        public static final String COLUMN_NAME_PARENT_ID = "parent_id";
-        public static final String COLUMN_NAME_CATEGORY = "category";
+        static final String TABLE_NAME = "tasks";
+        static final String COLUMN_NAME_TITLE = "title";
+        static final String COLUMN_NAME_PRIORITY = "priority";
+        static final String COLUMN_NAME_CREATED_DATE = "created_date";
+        static final String COLUMN_NAME_COMPLETED = "complete";
+        static final String COLUMN_NAME_DUE_DATE = "due_date";
+        static final String COLUMN_NAME_PARENT_ID = "parent_id";
+        static final String COLUMN_NAME_CATEGORY = "category";
     }
 }

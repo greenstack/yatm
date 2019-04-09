@@ -13,11 +13,6 @@ public class ListItem extends AbstractListItem {
 
     boolean isComplete = false;
 
-    public ListItem() {
-        super();
-        subTasks = new ArrayList<>();
-    }
-
     public ArrayList<ListItem> getSubTasks() {
         ArrayList<ListItem> list = new ArrayList<>();
         for (int i = 0; i < this.subTasks.size(); i++){
@@ -26,17 +21,12 @@ public class ListItem extends AbstractListItem {
         return list;
     }
 
-    public ListItem(IListItemObserver observer) {
-        super(observer);
-        subTasks = new ArrayList<>();
+    public ListItem(String title, int priority, String category, Date dueDate) {
+        this(title, priority, category, dueDate, true);
     }
 
-    public ListItem(IListItemObserver observer, String title, int priority, String category, Date dueDate) {
-        this(observer, title, priority, category, dueDate, true);
-    }
-
-    public ListItem(IListItemObserver observer, String title, int priority, String category, Date dueDate, boolean notify) {
-        super(observer);
+    public ListItem(String title, int priority, String category, Date dueDate, boolean notify) {
+        super(TaskListContract.getInstance());
         setTitle(title);
         setPriority(priority);
         setCategory(category);

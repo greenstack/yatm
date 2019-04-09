@@ -1,7 +1,5 @@
 package dj.yatm.Views;
 
-import java.util.List;
-
 import dj.yatm.model.ListItem;
 import dj.yatm.model.ListItemEvent;
 import dj.yatm.model.TaskListContract;
@@ -12,24 +10,25 @@ public class Presenter {
     private TaskListDbHelper dbHelper;
 
     public Presenter(){
-        this.contract = TaskListContract.get();
+        this.contract = TaskListContract.getInstance();
         this.dbHelper = TaskListDbHelper.getInstance();
     }
 
     public ListItem rebuildTree(ListItem listItem){
         return this.dbHelper.buildTreeFromId(listItem.getId());
+    }
 
+    /**
+     * Retrieves the entire tree of task items.
+     * @return The entire tree.
+     */
+    public ListItem getTree() {
+        // The root tree, which MUST not be deleted, has an id of 1.
+        return this.dbHelper.buildTreeFromId(1);
     }
 
 
     public void updateTask(ListItem listItem){
         this.contract.Update(listItem,ListItemEvent.Update);
     }
-
-    public void createTask(ListItem listItem){
-        listItem.addObserver(this.contract);
-        this.contract.Update(listItem, ListItemEvent.Create);
-    }
-
-
 }
