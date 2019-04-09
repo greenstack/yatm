@@ -9,6 +9,8 @@
     <string name="list_setup_date_edit">Date</string>
     <string name="list_setup_priority">Priority:</string>
     <string name="list_setup_priority_edit">Priority</string>
+    <string name="list_type">Family</string>
+    <string name="list_priority">Medium</string>
 
     <string-array name = "type">
         <item>School</item>

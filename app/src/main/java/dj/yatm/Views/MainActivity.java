@@ -141,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
     class MainListHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView title;
         ImageButton check;
+        TextView priority;
+        TextView type;
         ListItem item;
         private Presenter presenter;
 
@@ -149,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
             presenter = new Presenter();
             view.setOnClickListener(this);
             title = view.findViewById(R.id.title);
+            type = view.findViewById(R.id.priority_list_text);
+            priority = view.findViewById(R.id.type_text);
             check = view.findViewById(R.id.check_button);
             check.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -168,6 +172,22 @@ public class MainActivity extends AppCompatActivity {
 
         void bind(ListItem item){
             title.setText(item.getTitle()); //item.getTitle());
+            if (item.getCategory() != null) {
+                type.setText(item.getCategory());
+            } else {
+                type.setText("");
+            }
+            switch(item.getPriority()){
+                case 1:
+                    priority.setText("High");
+                    break;
+                case 2:
+                    priority.setText("Medium");
+                    break;
+                case 3:
+                    priority.setText("Low");
+                    break;
+            }
             check.setImageResource(item.isComplete() ? R.drawable.check_checked : R.drawable.check);
             this.item = item;
             return;
