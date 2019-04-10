@@ -184,6 +184,8 @@ public class MainActivity extends AppCompatActivity {
             if (item.getDueDate() != null) {
                 date.setText(item.getDueDate().toString());
             }
+            else
+                date.setText("");
             switch(item.getPriority()){
                 case 1:
                     this.wholeItem.setBackgroundColor(Color.parseColor("#ffd9d9"));

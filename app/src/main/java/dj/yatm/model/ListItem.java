@@ -3,7 +3,7 @@ package dj.yatm.model;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Created by Joseph on 3/21/2019.
@@ -21,11 +21,11 @@ public class ListItem extends AbstractListItem {
         return list;
     }
 
-    public ListItem(String title, int priority, String category, Date dueDate) {
+    public ListItem(String title, int priority, String category, LocalDate dueDate) {
         this(title, priority, category, dueDate, true);
     }
 
-    public ListItem(String title, int priority, String category, Date dueDate, boolean notify) {
+    public ListItem(String title, int priority, String category, LocalDate dueDate, boolean notify) {
         super(title, priority, category, dueDate);
         subTasks = new ArrayList<>();
         if (notify) notify(ListItemEvent.Create);

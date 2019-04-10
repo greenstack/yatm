@@ -2,10 +2,8 @@ package dj.yatm.model;
 
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashSet;
-
-import static java.time.Instant.now;
 
 /**
  * An abstract implementation of the IListItem.
@@ -14,8 +12,8 @@ public abstract class AbstractListItem implements IListItem, Serializable {
     long id = 0;
     private String title;
     private String category;
-    private Date creation = Date.from(now());
-    private Date dueDate;
+    private LocalDate creation = LocalDate.now();
+    private LocalDate dueDate;
     private int priority;
     Long parentId;
 
@@ -24,12 +22,12 @@ public abstract class AbstractListItem implements IListItem, Serializable {
      */
     private transient HashSet<IListItemObserver> observers;
 
-    AbstractListItem(IListItemObserver observer) {
+    private AbstractListItem(IListItemObserver observer) {
         observers = new HashSet<>();
         observers.add(observer);
     }
 
-    protected AbstractListItem(String title, int priority, String category, Date dueDate) {
+    protected AbstractListItem(String title, int priority, String category, LocalDate dueDate) {
         this(TaskListContract.getInstance());
         this.title = title;
         this.priority = priority;
@@ -50,6 +48,8 @@ public abstract class AbstractListItem implements IListItem, Serializable {
     }
 
     final public void addObserver(IListItemObserver observer) {
+        // This can happen if the Item's been deserialized.
+        if (observers == null) observers = new HashSet<>();
         observers.add(observer);
     }
 
@@ -87,11 +87,11 @@ public abstract class AbstractListItem implements IListItem, Serializable {
     }
 
     @Override
-    final public Date getCreation() {
+    final public LocalDate getCreation() {
         return creation;
     }
 
-    final void setCreation(Date creation) {this.creation = creation;}
+    final void setCreation(LocalDate creation) {this.creation = creation;}
 
     @Override
     final public long getId() {
@@ -99,17 +99,18 @@ public abstract class AbstractListItem implements IListItem, Serializable {
     }
 
     @Override
-    public final void setDueDate(Date dueDate) {
+    public final void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
+        notify(ListItemEvent.Update);
     }
 
     @Override
-    public final Date getDueDate() {
+    public final LocalDate getDueDate() {
         return this.dueDate;
     }
 
     @Override
     public final boolean isLate() {
-        return dueDate.before(Date.from(now()));
+        return false;//dueDate >LocalDate.now();
     }
 }

@@ -1,6 +1,6 @@
 package dj.yatm.model;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Represents a base List Item.
@@ -46,18 +46,18 @@ public interface IListItem {
      * Gets the time that this item was created.
      * @return The time of the item's creation.
      */
-    Date getCreation();
+    LocalDate getCreation();
 
     /**
      * Sets the due date of this item.
      */
-    void setDueDate(Date dueDate);
+    void setDueDate(LocalDate dueDate);
 
     /**
      * Gets the date this item should be completed by.
      * @return the due date of this item.
      */
-    Date getDueDate();
+    LocalDate getDueDate();
 
     /**
      * Determines if this item is overdue.

@@ -9,11 +9,15 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+
 /**
  * Created by Joseph Newman on 4/3/2019.
  */
 public class TaskListDbHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "TaskList.db";
 
     private SQLiteDatabase readableDB;
@@ -85,7 +89,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        //db.execSQL(SQL_DELETE_ENTRIES);
+        db.execSQL(SQL_DELETE_ENTRIES);
         onCreate(db);
     }
 
@@ -104,6 +108,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
                 li.getDueDate() != null ? li.getDueDate().toString() : null);
         values.put(TaskEntry.COLUMN_NAME_CREATED_DATE, li.getCreation().toString());
         values.put(TaskEntry.COLUMN_NAME_COMPLETED, li.isComplete());
+        values.put(TaskEntry.COLUMN_NAME_CATEGORY, li.getCategory());
         return values;
     }
 
@@ -187,11 +192,16 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
      * @return the ListItem from the cursor's data.
      */
     private ListItem fromCursor(Cursor cursor) throws CursorIndexOutOfBoundsException {
+        String text = cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_DUE_DATE));
+        LocalDate date = null;
+        if (text != null)
+            date = LocalDate.parse(text);
+
         ListItem read = new ListItem(
                 cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_TITLE)),
                 cursor.getInt(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_PRIORITY)),
                 cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_CATEGORY)),
-                null,
+                date,
                 false
         );
         long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(TaskEntry._ID));

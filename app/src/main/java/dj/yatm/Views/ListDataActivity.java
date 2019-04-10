@@ -10,10 +10,15 @@ import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 import dj.yatm.R;
 import dj.yatm.model.ListItem;
+import dj.yatm.model.TaskListContract;
 
 public class ListDataActivity extends AppCompatActivity {
 
@@ -49,15 +54,16 @@ public class ListDataActivity extends AppCompatActivity {
         }
         if (bundle.getSerializable("Current") != null){ // If you are editing
             this.current = (ListItem) bundle.getSerializable("Current");
+            this.current.addObserver(TaskListContract.getInstance());
             this.name.setText(this.current.getTitle());
-            this.priority.setSelection(this.current.getPriority());
+            this.priority.setSelection(this.current.getPriority() - 1);
+            this.calendarView.setDate(current.getDueDate().toEpochDay());
 //            this.priority.setSelection(this.current.getCategory());
             getSupportActionBar().setTitle("Edit Task");
         } else {
             getSupportActionBar().setTitle("Create New Task");
         }
 
-        Log.d("yatm", parent.toString());
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,8 +79,10 @@ public class ListDataActivity extends AppCompatActivity {
                         numPriority = 3;
                         break;
                 }
+                LocalDate newDate = Instant.ofEpochMilli(calendarView.getDate()).atZone(ZoneId.systemDefault()).toLocalDate();
+
                 if (current == null) {
-                    Date newDate = new Date(calendarView.getDate());
+                    calendarView.getDate();
                     current = new ListItem(
                             name.getText().toString(),
                             numPriority,
@@ -90,7 +98,7 @@ public class ListDataActivity extends AppCompatActivity {
                     current.setTitle(name.getText().toString());
                     current.setPriority(numPriority);
                     current.setCategory(type.getSelectedItem().toString());
-                    current.setDueDate(new Date(calendarView.getDate()));
+                    current.setDueDate(newDate);
                     // set the date here.
                 }
                 finish();
