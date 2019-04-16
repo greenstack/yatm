@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -58,6 +59,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void refreshList(){
+        switch (sortSpinner.getSelectedItem().toString()){
+            case "Category":
+                parentList.sort(AbstractListItem.CATEGORY_ORDER);
+                break;
+            case "Name":
+                parentList.sort(AbstractListItem.TITLE_ORDER);
+                break;
+            case "Priority":
+                parentList.sort(AbstractListItem.PRIORITY_ORDER);
+                break;
+            case "Date":
+                parentList.sort(AbstractListItem.DUE_DATE_ORDER);
+                break;
+            case "Completed":
+                parentList.sort(AbstractListItem.COMPLETED_ORDER);
+                break;
+        }
         mainListAdapter.update(this.parentList);
     }
 
@@ -107,24 +125,18 @@ public class MainActivity extends AppCompatActivity {
         sortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (sortSpinner.getSelectedItem().toString()){
-                    case "Category":
-                        parentList.sort(AbstractListItem.CATEGORY_ORDER);
-                        break;
-                    case "Name":
-                        parentList.sort(AbstractListItem.TITLE_ORDER);
-                        break;
-                    case "Priority":
-                        parentList.sort(AbstractListItem.PRIORITY_ORDER);
-                        break;
-                    case "Date":
-                        parentList.sort(AbstractListItem.DUE_DATE_ORDER);
-                        break;
-                    case "Completed":
-                        parentList.sort(AbstractListItem.COMPLETED_ORDER);
-                        break;
-                }
+                sortSpinner.performClick();
+            }
+        });
+
+        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 refreshList();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
