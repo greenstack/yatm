@@ -27,6 +27,7 @@
         <item>Priority</item>
         <item>Category</item>
         <item>Date</item>
+        <item>Completed</item>
     </string-array>
 
     <string-array name="priority">

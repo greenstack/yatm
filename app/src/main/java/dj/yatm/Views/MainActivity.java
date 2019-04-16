@@ -22,6 +22,7 @@ import android.widget.TextView;
 import java.util.Collections;
 
 import dj.yatm.R;
+import dj.yatm.model.AbstractListItem;
 import dj.yatm.model.ListItem;
 import dj.yatm.model.TaskListDbHelper;
 
@@ -53,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateList(){
         this.parentList = this.presenter.rebuildTree(this.parentList);
+        mainListAdapter.update(this.parentList);
+    }
+
+    public void refreshList(){
         mainListAdapter.update(this.parentList);
     }
 
@@ -102,6 +107,24 @@ public class MainActivity extends AppCompatActivity {
         sortButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                switch (sortSpinner.getSelectedItem().toString()){
+                    case "Category":
+                        parentList.sort(AbstractListItem.CATEGORY_ORDER);
+                        break;
+                    case "Name":
+                        parentList.sort(AbstractListItem.TITLE_ORDER);
+                        break;
+                    case "Priority":
+                        parentList.sort(AbstractListItem.PRIORITY_ORDER);
+                        break;
+                    case "Date":
+                        parentList.sort(AbstractListItem.DUE_DATE_ORDER);
+                        break;
+                    case "Completed":
+                        parentList.sort(AbstractListItem.COMPLETED_ORDER);
+                        break;
+                }
+                refreshList();
 
             }
         });
