@@ -32,6 +32,8 @@ public class ListDataActivity extends AppCompatActivity {
     public ListItem parent;
     public CalendarView calendarView;
     private LocalDate savedDate;
+    private Button deleteButton;
+    private Presenter presenter;
 
     public void initVariables(){
         name = findViewById(R.id.name_edit_text);
@@ -39,6 +41,7 @@ public class ListDataActivity extends AppCompatActivity {
         priority = findViewById(R.id.priority_spinner);
         saveButton = findViewById(R.id.save_setup_button);
         calendarView = findViewById(R.id.calendarView);
+        deleteButton = findViewById(R.id.delete_setup_button);
     }
 
     @Override
@@ -74,6 +77,14 @@ public class ListDataActivity extends AppCompatActivity {
             public void onSelectedDayChange(@NotNull CalendarView view, int year, int month, int dayOfMonth) {
                 // The months are zero-indexed, unfortunately.
                 savedDate = LocalDate.of(year, month +1 , dayOfMonth);
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                current.delete();
+                finish();
             }
         });
 
