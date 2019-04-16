@@ -3,6 +3,7 @@ package dj.yatm.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashSet;
 
 /**
@@ -112,5 +113,61 @@ public abstract class AbstractListItem implements IListItem, Serializable {
     @Override
     public final boolean isLate() {
         return false;//dueDate >LocalDate.now();
+    }
+
+    public static final Comparator<AbstractListItem> TITLE_ORDER = new Comparator<AbstractListItem>() {
+        @Override
+        public int compare(AbstractListItem abstractListItem, AbstractListItem t1) {
+            return abstractListItem.title.compareTo(t1.title);
+        }
+    };
+
+    public static final Comparator<AbstractListItem> PRIORITY_ORDER = new Comparator<AbstractListItem>() {
+        @Override
+        public int compare(AbstractListItem abstractListItem, AbstractListItem t1) {
+            int order = Integer.compare(abstractListItem.priority, t1.priority);
+            return compareWrapper(order, abstractListItem, t1);
+        }
+    };
+
+    public static final Comparator<AbstractListItem> DUE_DATE_ORDER = new Comparator<AbstractListItem>() {
+        @Override
+        public int compare(AbstractListItem abstractListItem, AbstractListItem t1) {
+            int order = abstractListItem.dueDate.compareTo(t1.dueDate);
+            return compareWrapper(order, abstractListItem, t1);
+        }
+    };
+
+    public static final Comparator<AbstractListItem> CREATED_ORDER = new Comparator<AbstractListItem>() {
+        @Override
+        public int compare(AbstractListItem abstractListItem, AbstractListItem t1) {
+            return abstractListItem.creation.compareTo(t1.creation);
+        }
+    };
+
+    /**
+     * Sorts by category.
+     */
+    public static final Comparator<AbstractListItem> CATEGORY_ORDER = new Comparator<AbstractListItem>() {
+        @Override
+        public int compare(AbstractListItem abstractListItem, AbstractListItem t1) {
+            int order = abstractListItem.category.compareTo(t1.category);
+            return compareWrapper(order, abstractListItem, t1);
+        }
+    };
+
+    /**
+     * Sorts first by completion, then by title.
+     */
+    public static final Comparator<AbstractListItem> COMPLETED_ORDER = new Comparator<AbstractListItem>() {
+        @Override
+        public int compare(AbstractListItem abstractListItem, AbstractListItem t1) {
+            int completenessComparison = Boolean.compare(abstractListItem.isComplete(), t1.isComplete());
+            return compareWrapper(completenessComparison, abstractListItem, t1);
+        }
+    };
+
+    private static int compareWrapper(int order, AbstractListItem abstractListItem, AbstractListItem t1) {
+        return order == 0 ? TITLE_ORDER.compare(abstractListItem, t1) : order;
     }
 }

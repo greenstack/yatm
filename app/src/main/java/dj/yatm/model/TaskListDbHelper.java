@@ -194,7 +194,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
     private ListItem fromCursor(Cursor cursor) throws CursorIndexOutOfBoundsException {
         Long epochDay = cursor.getLong(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_DUE_DATE));
         LocalDate date = null;
-        if (epochDay != null)
+        if (epochDay != null && epochDay != 0)
             date = LocalDate.ofEpochDay(epochDay);
 
         ListItem read = new ListItem(

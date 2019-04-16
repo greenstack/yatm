@@ -28,7 +28,6 @@ public class ListDataActivity extends AppCompatActivity {
     private Spinner type;
     private Spinner priority;
     private Button saveButton;
-    private Presenter presenter;
     public ListItem current;
     public ListItem parent;
     public CalendarView calendarView;
@@ -40,7 +39,6 @@ public class ListDataActivity extends AppCompatActivity {
         priority = findViewById(R.id.priority_spinner);
         saveButton = findViewById(R.id.save_setup_button);
         calendarView = findViewById(R.id.calendarView);
-        presenter = new Presenter();
     }
 
     @Override
@@ -96,8 +94,6 @@ public class ListDataActivity extends AppCompatActivity {
                 }
 
                 if (current == null) {
-                    long date = calendarView.getDate();
-                    long saved = savedDate.atStartOfDay(ZoneId.systemDefault()).toEpochSecond();
                     current = new ListItem(
                             name.getText().toString(),
                             numPriority,

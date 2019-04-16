@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         private Presenter presenter;
         RelativeLayout wholeItem;
         TextView date;
+        TextView subtaskCount;
 
         public MainListHolder(final View view){
             super(view);
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
             check = view.findViewById(R.id.check_button);
             wholeItem = view.findViewById(R.id.list_item_whole);
             date = view.findViewById(R.id.date_text_main);
+            subtaskCount = view.findViewById(R.id.subtaskCount);
             check.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -186,6 +188,11 @@ public class MainActivity extends AppCompatActivity {
             }
             else
                 date.setText("");
+            int subCount = item.countItems();
+            String strSubCnt = String.format("(%d subtask%s)",
+                    subCount,
+                    subCount != 1 ? "s" : "");
+            subtaskCount.setText(strSubCnt);
             switch(item.getPriority()){
                 case 1:
                     this.wholeItem.setBackgroundColor(Color.parseColor("#ffd9d9"));
