@@ -195,13 +195,13 @@ public class MainActivity extends AppCompatActivity {
             subtaskCount.setText(strSubCnt);
             switch(item.getPriority()){
                 case 1:
-                    this.wholeItem.setBackgroundColor(Color.parseColor("#ffd9d9"));
+                    this.wholeItem.setBackgroundColor(Color.parseColor("#ffeaea"));
                     break;
                 case 2:
-                    this.wholeItem.setBackgroundColor(Color.parseColor("#fffed9"));
+                    this.wholeItem.setBackgroundColor(Color.parseColor("#fffeea"));
                     break;
                 case 3:
-                    this.wholeItem.setBackgroundColor(Color.parseColor("#d9ffe6"));
+                    this.wholeItem.setBackgroundColor(Color.parseColor("#effff5"));
                     break;
             }
             check.setImageResource(item.isComplete() ? R.drawable.check_checked : R.drawable.check);

@@ -38,6 +38,10 @@ public abstract class AbstractListItem implements IListItem, Serializable {
 
     @Override
     public void delete() {
+        if (observers == null) {
+            observers = new HashSet<>();
+            observers.add(TaskListContract.getInstance());
+        }
         notify(ListItemEvent.Delete);
     }
 
