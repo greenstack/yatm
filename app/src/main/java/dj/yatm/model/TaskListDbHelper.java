@@ -17,7 +17,7 @@ import java.time.LocalDate;
  * Created by Joseph Newman on 4/3/2019.
  */
 public class TaskListDbHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
     public static final String DATABASE_NAME = "TaskList.db";
 
     private SQLiteDatabase readableDB;
@@ -45,7 +45,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
                     TaskEntry.COLUMN_NAME_TITLE + " TEXT, " +
                     TaskEntry.COLUMN_NAME_PARENT_ID + " INTEGER, " +
                     TaskEntry.COLUMN_NAME_PRIORITY + " INTEGER, " +
-                    TaskEntry.COLUMN_NAME_CREATED_DATE + " TEXT, " +
+                    TaskEntry.COLUMN_NAME_CREATED_DATE + " INTEGER, " +
                     TaskEntry.COLUMN_NAME_CATEGORY + " TEXT, " +
                     TaskEntry.COLUMN_NAME_COMPLETED + " INTEGER DEFAULT 0, " +
                     TaskEntry.COLUMN_NAME_DUE_DATE + " TEXT)";
@@ -105,7 +105,7 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
         values.put(TaskEntry.COLUMN_NAME_PRIORITY, li.getPriority());
         values.put(TaskEntry.COLUMN_NAME_PARENT_ID, li.parentId);
         values.put(TaskEntry.COLUMN_NAME_DUE_DATE,
-                li.getDueDate() != null ? li.getDueDate().toString() : null);
+                li.getDueDate() != null ? li.getDueDate().toEpochDay() : null);
         values.put(TaskEntry.COLUMN_NAME_CREATED_DATE, li.getCreation().toString());
         values.put(TaskEntry.COLUMN_NAME_COMPLETED, li.isComplete());
         values.put(TaskEntry.COLUMN_NAME_CATEGORY, li.getCategory());
@@ -192,10 +192,10 @@ public class TaskListDbHelper extends SQLiteOpenHelper {
      * @return the ListItem from the cursor's data.
      */
     private ListItem fromCursor(Cursor cursor) throws CursorIndexOutOfBoundsException {
-        String text = cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_DUE_DATE));
+        Long epochDay = cursor.getLong(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_DUE_DATE));
         LocalDate date = null;
-        if (text != null)
-            date = LocalDate.parse(text);
+        if (epochDay != null)
+            date = LocalDate.ofEpochDay(epochDay);
 
         ListItem read = new ListItem(
                 cursor.getString(cursor.getColumnIndexOrThrow(TaskEntry.COLUMN_NAME_TITLE)),

@@ -10,6 +10,8 @@ import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,6 +32,7 @@ public class ListDataActivity extends AppCompatActivity {
     public ListItem current;
     public ListItem parent;
     public CalendarView calendarView;
+    private LocalDate savedDate;
 
     public void initVariables(){
         name = findViewById(R.id.name_edit_text);
@@ -57,12 +60,24 @@ public class ListDataActivity extends AppCompatActivity {
             this.current.addObserver(TaskListContract.getInstance());
             this.name.setText(this.current.getTitle());
             this.priority.setSelection(this.current.getPriority() - 1);
-            this.calendarView.setDate(current.getDueDate().toEpochDay());
+            savedDate = this.current.getDueDate();
+            if (savedDate != null) {
+                long stime = savedDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                this.calendarView.setDate(stime);
+            }
 //            this.priority.setSelection(this.current.getCategory());
             getSupportActionBar().setTitle("Edit Task");
         } else {
             getSupportActionBar().setTitle("Create New Task");
         }
+
+        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NotNull CalendarView view, int year, int month, int dayOfMonth) {
+                // The months are zero-indexed, unfortunately.
+                savedDate = LocalDate.of(year, month +1 , dayOfMonth);
+            }
+        });
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,15 +94,15 @@ public class ListDataActivity extends AppCompatActivity {
                         numPriority = 3;
                         break;
                 }
-                LocalDate newDate = Instant.ofEpochMilli(calendarView.getDate()).atZone(ZoneId.systemDefault()).toLocalDate();
 
                 if (current == null) {
-                    calendarView.getDate();
+                    long date = calendarView.getDate();
+                    long saved = savedDate.atStartOfDay(ZoneId.systemDefault()).toEpochSecond();
                     current = new ListItem(
                             name.getText().toString(),
                             numPriority,
                             type.getSelectedItem().toString(),
-                            newDate,
+                            savedDate,
                             true
                     );
                     // This is where set date will go.
@@ -98,7 +113,7 @@ public class ListDataActivity extends AppCompatActivity {
                     current.setTitle(name.getText().toString());
                     current.setPriority(numPriority);
                     current.setCategory(type.getSelectedItem().toString());
-                    current.setDueDate(newDate);
+                    current.setDueDate(savedDate);
                     // set the date here.
                 }
                 finish();
