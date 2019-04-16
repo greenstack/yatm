@@ -15,12 +15,14 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 //import androidx.room.Room;
 import java.util.Collections;
 
 import dj.yatm.R;
+import dj.yatm.model.AbstractListItem;
 import dj.yatm.model.ListItem;
 import dj.yatm.model.TaskListDbHelper;
 
@@ -32,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton addListButton;
     public ListItem parentList;
     private Presenter presenter;
+    private ImageButton sortButton;
+    private Spinner sortSpinner;
 
     public void initVariables(){
         mainListManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -44,11 +48,16 @@ public class MainActivity extends AppCompatActivity {
     public void assignIDs(){
         mainList = this.findViewById(R.id.list_recycler);
         addListButton = this.findViewById(R.id.add_list_button);
+        sortButton = this.findViewById(R.id.sort_button);
+        sortSpinner = this.findViewById(R.id.sort_menu);
     }
 
     public void updateList(){
         this.parentList = this.presenter.rebuildTree(this.parentList);
+        mainListAdapter.update(this.parentList);
+    }
 
+    public void refreshList(){
         mainListAdapter.update(this.parentList);
     }
 
@@ -92,6 +101,31 @@ public class MainActivity extends AppCompatActivity {
                 bundle.putSerializable("parent", parentList);
                 intent.putExtras(bundle);
                 startActivity(intent);
+            }
+        });
+
+        sortButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (sortSpinner.getSelectedItem().toString()){
+                    case "Category":
+                        parentList.sort(AbstractListItem.CATEGORY_ORDER);
+                        break;
+                    case "Name":
+                        parentList.sort(AbstractListItem.TITLE_ORDER);
+                        break;
+                    case "Priority":
+                        parentList.sort(AbstractListItem.PRIORITY_ORDER);
+                        break;
+                    case "Date":
+                        parentList.sort(AbstractListItem.DUE_DATE_ORDER);
+                        break;
+                    case "Completed":
+                        parentList.sort(AbstractListItem.COMPLETED_ORDER);
+                        break;
+                }
+                refreshList();
+
             }
         });
     }

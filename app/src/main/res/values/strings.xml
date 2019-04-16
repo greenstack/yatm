@@ -22,6 +22,13 @@
         <item>Fun</item>
     </string-array>
 
+    <string-array name = "sort">
+        <item>Name</item>
+        <item>Priority</item>
+        <item>Category</item>
+        <item>Date</item>
+        <item>Completed</item>
+    </string-array>
 
     <string-array name="priority">
         <item>High</item>
