@@ -137,6 +137,12 @@ public abstract class AbstractListItem implements IListItem, Serializable {
     public static final Comparator<AbstractListItem> DUE_DATE_ORDER = new Comparator<AbstractListItem>() {
         @Override
         public int compare(AbstractListItem abstractListItem, AbstractListItem t1) {
+            if (abstractListItem.dueDate == null && t1.dueDate == null)
+                return 0;
+            else if (abstractListItem.dueDate == null)
+                return 1;
+            else if (t1.dueDate == null)
+                return -1;
             int order = abstractListItem.dueDate.compareTo(t1.dueDate);
             return compareWrapper(order, abstractListItem, t1);
         }
