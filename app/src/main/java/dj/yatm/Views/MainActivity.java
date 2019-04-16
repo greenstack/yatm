@@ -201,13 +201,13 @@ public class MainActivity extends AppCompatActivity {
                         presenter.updateTask(item);
                         switch(item.getPriority()){
                             case 1:
-                                wholeItem.setBackgroundColor(Color.parseColor("#ffd9d9"));
+                                wholeItem.setBackgroundColor(Color.parseColor("#ffeaea"));
                                 break;
                             case 2:
-                                wholeItem.setBackgroundColor(Color.parseColor("#fffed9"));
+                                wholeItem.setBackgroundColor(Color.parseColor("#fffeea"));
                                 break;
                             case 3:
-                                wholeItem.setBackgroundColor(Color.parseColor("#d9ffe6"));
+                                wholeItem.setBackgroundColor(Color.parseColor("#effff5"));
                                 break;
                         }
                     }
