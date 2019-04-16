@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.time.LocalDate;
+import java.util.Comparator;
 
 /**
  * Created by Joseph on 3/21/2019.
@@ -114,6 +115,19 @@ public class ListItem extends AbstractListItem {
                 count += casted.countAllItems();
         }
         return count;
+    }
+
+    public final void sort(Comparator<AbstractListItem> sorter) {
+        subTasks.sort(sorter);
+    }
+
+    @Override
+    public final void delete() {
+        for (AbstractListItem ali :
+                subTasks) {
+            ali.delete();
+        }
+        super.delete();
     }
 
     @NotNull
